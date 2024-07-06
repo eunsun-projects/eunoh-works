@@ -8,7 +8,7 @@ function MoveToSignUpButton() {
     const moveToSignUp = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
-        router.push("/signup");
+        router.push("/signup", { scroll: false });
     };
 
     return (

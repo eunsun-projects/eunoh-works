@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 function MoveToSignUpButton() {
     const router = useRouter();
 
-    const moveToSignUp = () => router.push("/signup");
+    const moveToSignUp = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        router.push("/signup");
+    };
 
     return (
         <button

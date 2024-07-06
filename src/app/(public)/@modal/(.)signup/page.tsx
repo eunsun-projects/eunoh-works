@@ -1,10 +1,10 @@
-import LogInSignUpModal from "@/components/auth/LogInSignUpModal";
+import SignUpForm from "@/components/auth/form/SignUpForm";
 import ModalBack from "@/components/common/ModalBack";
 
 function InterceptingSignUpPage() {
     return (
         <ModalBack>
-            <LogInSignUpModal type="signup" />
+            <SignUpForm />
         </ModalBack>
     );
 }

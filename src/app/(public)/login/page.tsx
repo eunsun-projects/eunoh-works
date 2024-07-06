@@ -1,11 +1,9 @@
-import LogInModal from "@/components/auth/LogInModal";
-// import MainPage from "../_components/MainPage";
+import LogInSignUpModal from "@/components/auth/LogInSignUpModal";
 
-export default function LoginPage({ searchParams }: { searchParams: { message: string } }) {
+export default function LoginPage() {
     return (
         <>
-            <LogInModal searchParams={searchParams} />
-            {/* <MainPage /> */}
+            <LogInSignUpModal type="login" />
         </>
     );
 }

@@ -4,13 +4,12 @@ import { useRouter } from "next/navigation";
 function BackButton() {
     const router = useRouter();
 
-    const handleBack = () => {
-        router.back();
-    };
+    const handleBack = () => router.push("/no-route");
 
     return (
         <button
             onClick={handleBack}
+            type="button"
             className="relative py-2 px-4 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center justify-end group text-sm"
         >
             <svg

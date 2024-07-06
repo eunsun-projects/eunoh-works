@@ -1,12 +1,12 @@
 import LogInSignUpModal from "@/components/auth/LogInSignUpModal";
 import ModalBack from "@/components/common/ModalBack";
 
-function InterceptingLoginPage() {
+function InterceptingSignUpPage() {
     return (
         <ModalBack>
-            <LogInSignUpModal type="login" />
+            <LogInSignUpModal type="signup" />
         </ModalBack>
     );
 }
 
-export default InterceptingLoginPage;
+export default InterceptingSignUpPage;

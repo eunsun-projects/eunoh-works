@@ -1,5 +1,11 @@
+import AuthButton from "@/components/auth/buttons/AuthButton";
+
 function AdminPage() {
-    return <div>AdminPage</div>;
+    return (
+        <div>
+            <AuthButton />
+        </div>
+    );
 }
 
 export default AdminPage;

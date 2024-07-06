@@ -41,7 +41,7 @@ const signUp = async (formData: FormData) => {
         return redirect("/signup");
     }
 
-    return redirect("/");
+    return redirect("/admin");
 };
 
 export default signUp;

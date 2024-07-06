@@ -24,7 +24,7 @@ const signIn = async (formData: FormData) => {
         return redirect("/login");
     }
 
-    return redirect("/");
+    return redirect("/admin");
 };
 
 export default signIn;

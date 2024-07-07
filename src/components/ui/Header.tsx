@@ -3,24 +3,7 @@ import styles from "@/css/main.module.css";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import LogOutButton from "../auth/buttons/LogOutButton";
-
-const items = [
-    {
-        label: "Works",
-        value: 1,
-        href: "/works",
-    },
-    {
-        label: "Texts",
-        value: 2,
-        href: "/texts",
-    },
-    {
-        label: "About",
-        value: 3,
-        href: "/about",
-    },
-];
+import HeaderMenuList from "./HeaderMenuList";
 
 export default async function Header({ slug }: { slug: string | undefined }) {
     // const cookieStore = cookies();
@@ -44,15 +27,7 @@ export default async function Header({ slug }: { slug: string | undefined }) {
                         </Link>
                     </li>
 
-                    {items.map((e, i) => (
-                        <li key={i}>
-                            <button className="h-full font-semibold text-black text-center text-[2.5vh] flex justify-center items-center defmenu active:bg-white active:border-t active:border-l active:border-r active:border-[#6e6e6e] active:border-b active:rounded-tl-[10%] active:rounded-tr-[10%] active:rounded-bl-none active:rounded-br-none">
-                                <Link href={e.href} prefetch={false}>
-                                    {e.label}
-                                </Link>
-                            </button>
-                        </li>
-                    ))}
+                    <HeaderMenuList />
 
                     {user && slug === "admin" ? (
                         <div className="ml-auto flex gap-x-2">

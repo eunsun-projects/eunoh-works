@@ -51,14 +51,17 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     const headersList = headers();
-    const header_url = headersList.get("x-url") || "";
+    const header_url = headersList.get("x-url") || undefined;
+    let lastSegment = undefined;
 
     // URL 객체 생성
-    const url = new URL(header_url);
+    if (header_url) {
+        const url = new URL(header_url);
 
-    // pathname에서 마지막 부분 추출
-    const pathSegments = url.pathname.split("/");
-    const lastSegment = pathSegments.pop() || pathSegments.pop();
+        // pathname에서 마지막 부분 추출
+        const pathSegments = url.pathname.split("/");
+        lastSegment = pathSegments.pop() || pathSegments.pop();
+    }
 
     return (
         <html lang="ko">

@@ -65,11 +65,13 @@ export default function RootLayout({
     }
 
     return (
-        <html lang="ko">
-            <body className={rubic.className}>
-                <Header slug={lastSegment} />
-                {children}
-                <Footer />
+        <html lang="ko" className={rubic.className}>
+            <body className="w-full h-dvh p-[0px] m-[0px] box-border overflow-hidden">
+                <div className="w-full h-full flex flex-col relative">
+                    <Header slug={lastSegment} />
+                    <main className="flex-1 h-full">{children}</main>
+                    <Footer />
+                </div>
             </body>
         </html>
     );

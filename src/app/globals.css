@@ -4,3 +4,12 @@
 
 @layer utilities {
 }
+
+.link {
+    @apply p-[0px] text-black no-underline transition ease-in duration-500;
+}
+
+.link:hover,
+.link:focus {
+    @apply text-[rgb(255,100,100)] bg-white;
+}

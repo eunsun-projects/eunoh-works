@@ -1,4 +1,4 @@
-import styles from "@/css/main.module.css";
+import styles from "@/app/(public)/_components/main.module.css";
 import Link from "next/link";
 import { SvgComponentCc, SvgComponentLeft, SvgComponentMan } from "./FooterSvgs";
 

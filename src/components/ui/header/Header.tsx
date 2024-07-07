@@ -1,5 +1,5 @@
+import styles from "@/app/(public)/_components/main.module.css";
 import { rubicBubbles } from "@/app/fonts";
-import styles from "@/css/main.module.css";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import LogOutButton from "../../auth/buttons/LogOutButton";

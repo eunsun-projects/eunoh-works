@@ -1,0 +1,182 @@
+.mimage {
+    width: auto;
+    max-width: 560px;
+    height: auto;
+    max-height: 680px;
+}
+.caption {
+    width: 100%;
+    height: 6%;
+    font-size: 1rem;
+    position: relative;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+.close {
+    width: 100%;
+    height: 3%;
+    font-size: 1.6rem;
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    color: white;
+}
+.x {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    cursor: pointer;
+}
+.modalimage {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    width: 50vw;
+    height: 91%;
+    max-width: 90%;
+    text-align: center;
+}
+.imagecomp {
+    width: 60%;
+    height: auto;
+}
+.sonimagecomp {
+    width: 40%;
+    height: auto;
+}
+.modal {
+    position: fixed;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9);
+    align-items: center;
+    justify-content: center;
+}
+.image {
+    display: flex;
+    position: relative;
+    cursor: pointer;
+    width: 80%;
+    height: auto;
+    max-width: 360px;
+    max-height: 800px;
+    padding: 0 0 0 0;
+    object-fit: contain;
+    transition: all 2s ease;
+}
+
+/* Create four equal columns that sits next to each other */
+.column {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, fit-content(100vh));
+    gap: 1vh;
+    padding: 2vh 0;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+}
+
+@media screen and (max-width: 1024px) {
+    .column {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, fit-content(100vh));
+    }
+    .mimage {
+        width: auto;
+        max-width: 800px;
+        height: auto;
+        max-height: 800px;
+    }
+    .imagecomp {
+        width: 100%;
+    }
+    .sonimagecomp {
+        width: 100%;
+        height: auto;
+    }
+}
+@media screen and (max-width: 915px) {
+    .column {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, fit-content(100vh));
+    }
+    .mimage {
+        width: auto;
+        max-width: 800px;
+        height: auto;
+        max-height: 800px;
+    }
+    .sonimagecomp {
+        width: 90%;
+        height: auto;
+    }
+}
+/* Responsive layout - makes a two column-layout instead of four columns */
+@media screen and (max-width: 800px) {
+    .column {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, fit-content(100vh));
+    }
+    .sonimagecomp {
+        width: 80%;
+        height: auto;
+    }
+}
+@media screen and (max-width: 820px) {
+    .mimage {
+        width: auto;
+        max-width: 800px;
+        height: auto;
+        max-height: 800px;
+    }
+    .sonimagecomp {
+        width: 80%;
+    }
+}
+@media screen and (max-width: 740px) {
+    .mimage {
+        width: 80%;
+        height: auto;
+    }
+    .sonimagecomp {
+        width: 80%;
+    }
+}
+@media screen and (max-width: 600px) {
+    .column {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, fit-content(100vh));
+    }
+    .mimage {
+        width: 80%;
+        height: auto;
+    }
+    .modalimage {
+        width: 80vw;
+    }
+    .imagecomp {
+        width: 100%;
+    }
+    .sonimagecomp {
+        width: 80%;
+    }
+}
+
+@media screen and (max-width: 414px) {
+    .caption {
+        font-size: 0.76rem;
+    }
+}

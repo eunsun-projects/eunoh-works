@@ -1,7 +1,7 @@
 "use client";
 
-import styles from "@/css/main.module.css";
 import Script from "next/script";
+import styles from "./main.module.css";
 
 function MainPage() {
     return (

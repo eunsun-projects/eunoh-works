@@ -2,46 +2,39 @@
 import styles from "@/app/(public)/works/[slug]/_components/work.module.css";
 import styles23 from "@/app/(public)/works/[slug]/_components/work23after.module.css";
 import { worksData } from "@/data/worksData";
-import { Work } from "@/types/data.type";
-import { extractImgSrc } from "@plaiceholder/tailwindcss/utils";
+import { Plaiceholder, Work } from "@/types/data.type";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import ImageModal from "./ImageModal";
 
-export default function EveryWorks({ year }: { year: string }) {
+export default function EveryWorks({ year, blurredImages }: { year: string; blurredImages: Plaiceholder[] }) {
     const [selected, setSelected] = useState<Work | null>(null);
-
-    const imgRefs = useRef([]);
-
-    // const loadedCount = useLazyLoad(imgRefs.current, images.map(e => e.src));
 
     const handleClick = (item: Work) => () => setSelected(item);
 
+    //h-40 md:h-56 lg:h-72 xl:h-96
     if (Number(year) < 2023) {
         return (
             <>
                 {selected && <ImageModal selected={selected} setSelected={setSelected} />}
                 <div className="overflow-y-auto flex-1">
                     <div className={styles.column}>
-                        {worksData[year].map((image) => {
-                            const plaiceholder = `plaiceholder-${image.src}`;
-                            const blurredSrc = extractImgSrc(plaiceholder);
+                        {worksData[year].map(async (image, idx) => {
                             return (
-                                <div
-                                    key={image.txt}
-                                    className="relative aspect-auto w-[80%] h-40 md:h-56 lg:h-72 xl:h-96 cursor-pointer"
-                                >
+                                <div key={image.txt} className="relative aspect-auto w-[80%] h-auto cursor-pointer">
                                     <Image
                                         className={styles.image}
                                         src={image.src}
                                         alt={image.txt}
-                                        fill
+                                        // fill
+                                        width={blurredImages[idx].img.width}
+                                        height={blurredImages[idx].img.height}
                                         onClick={handleClick(image)}
                                         loading="lazy"
                                         placeholder="blur"
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        blurDataURL={blurredSrc}
+                                        sizes="100vw"
+                                        blurDataURL={blurredImages[idx].base64}
                                     />
                                 </div>
                             );

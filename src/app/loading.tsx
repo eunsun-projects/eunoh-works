@@ -13,7 +13,7 @@ export default function Loading() {
         >
             <p
                 style={{
-                    color: "rgb(255, 100, 100)",
+                    color: "rgb(80, 80, 80)",
                     fontSize: "1.5rem",
                     position: "relative",
                 }}

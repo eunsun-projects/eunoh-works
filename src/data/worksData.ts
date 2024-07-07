@@ -154,7 +154,7 @@ export const worksData: WorksByYear = {
         {
             value: 5,
             src: "/assets/s-16-9.webp",
-            txt: "s-16-9_2016_300*300*1000_polystyrene foam, putty, acrylic, wood",
+            txt: "s-16-9_2016_30*300*1000_polystyrene foam, putty, acrylic, wood",
         },
         {
             value: 6,

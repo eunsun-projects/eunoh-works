@@ -1,6 +1,3 @@
-import plaiceholder from "@plaiceholder/tailwindcss";
-import fs from "fs";
-import path from "path";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -17,10 +14,6 @@ const config: Config = {
             },
         },
     },
-    plugins: [
-        plaiceholder({
-            resolver: (src) => fs.readFileSync(path.join("./public", `${src}.jpg`)),
-        }),
-    ],
+    plugins: [],
 };
 export default config;

@@ -13,3 +13,26 @@ export interface Work {
 export type WorksByYear = {
     [year: string]: Work[];
 };
+
+export type Plaiceholder = {
+    img: {
+        imgPath: string;
+        height: number;
+        width: number;
+    };
+    color: {
+        r: number;
+        g: number;
+        b: number;
+        hex: string;
+    };
+    css: {
+        backgroundImage: string;
+        backgroundPosition: string;
+        backgroundSize: string;
+        backgroundRepeat: string;
+    };
+    base64: string;
+    pixels: {}[][];
+};
+[];

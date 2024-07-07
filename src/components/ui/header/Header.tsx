@@ -1,4 +1,4 @@
-import { rubicBubbles } from "@/app/layout";
+import { rubicBubbles } from "@/app/fonts";
 import styles from "@/css/main.module.css";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";

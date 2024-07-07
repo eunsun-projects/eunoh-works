@@ -1,6 +1,6 @@
 import Input from "@/components/common/Input";
 import signIn from "@/utils/auth/signIn";
-import BackButton from "../../common/BackButton";
+import BackButton from "../buttons/BackButton";
 import MoveToSignUpButton from "../buttons/MoveToSignUpButton";
 import { SubmitButton } from "../buttons/submit-button";
 

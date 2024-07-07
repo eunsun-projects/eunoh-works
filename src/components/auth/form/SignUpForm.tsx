@@ -1,6 +1,6 @@
 import Input from "@/components/common/Input";
 import signUp from "@/utils/auth/signUp";
-import BackButton from "../../common/BackButton";
+import BackButton from "../buttons/BackButton";
 import { SubmitButton } from "../buttons/submit-button";
 
 function SignUpForm() {

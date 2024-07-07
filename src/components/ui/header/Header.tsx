@@ -2,15 +2,10 @@ import { rubicBubbles } from "@/app/layout";
 import styles from "@/css/main.module.css";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import LogOutButton from "../auth/buttons/LogOutButton";
+import LogOutButton from "../../auth/buttons/LogOutButton";
 import HeaderMenuList from "./HeaderMenuList";
 
 export default async function Header({ slug }: { slug: string | undefined }) {
-    // const cookieStore = cookies();
-    // const allCookies = cookieStore.getAll();
-
-    // const authTokenCookies = allCookies.filter((cookie) => cookie.name.startsWith("sb-ageijospngqmyzptvsoo-auth-token"));
-
     const supabase = createClient();
 
     const {
@@ -18,8 +13,8 @@ export default async function Header({ slug }: { slug: string | undefined }) {
     } = await supabase.auth.getUser();
 
     return (
-        <header className={styles.header} style={{ display: slug === "sonnyinfo" ? "none" : "block" }}>
-            <div className={styles.eunheadernav}>
+        <header className="pt-[0.3vh] relative" style={{ display: slug === "sonnyinfo" ? "none" : "block" }}>
+            <div className="relative">
                 <ul className={styles.topmenu}>
                     <li className={`${styles.eunoh} ${rubicBubbles.className}`}>
                         <Link href={"/"} prefetch={false}>
@@ -46,3 +41,8 @@ export default async function Header({ slug }: { slug: string | undefined }) {
         </header>
     );
 }
+
+// const cookieStore = cookies();
+// const allCookies = cookieStore.getAll();
+
+// const authTokenCookies = allCookies.filter((cookie) => cookie.name.startsWith("sb-ageijospngqmyzptvsoo-auth-token"));

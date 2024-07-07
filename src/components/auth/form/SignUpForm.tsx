@@ -5,7 +5,7 @@ import { SubmitButton } from "../buttons/submit-button";
 
 function SignUpForm() {
     return (
-        <dialog className="absolute z-20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-foreground/20 flex flex-col w-full h-[500px] px-8 rounded-xl sm:max-w-md justify-center gap-2 bg-white">
+        <dialog className="absolute z-20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-foreground/20 flex flex-col w-full h-[500px] px-8 rounded-xl sm:max-w-md justify-center gap-2 bg-white m-[0px]">
             <form className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
                 <BackButton />
 

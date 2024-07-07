@@ -13,7 +13,7 @@ function ModalBack({ children }: { children: React.ReactNode }) {
         <>
             <div
                 onClick={handleBack}
-                className="fixed z-10 w-screen h-full flex justify-center items-center top-0 left-0 right-0 bottom-0 bg-black/[0.4]"
+                className="fixed z-10 w-dvw h-dvh flex justify-center items-center top-0 left-0 right-0 bottom-0 bg-black/[0.4]"
             ></div>
             {children}
         </>

@@ -1,4 +1,5 @@
-import Header from "@/components/ui/Header";
+import Footer from "@/components/ui/footer/Footer";
+import Header from "@/components/ui/header/Header";
 import type { Metadata } from "next";
 import { Alumni_Sans_Collegiate_One, Gothic_A1, Rubik, Rubik_Bubbles, Rubik_Mono_One, Silkscreen } from "next/font/google";
 import { headers } from "next/headers";
@@ -68,6 +69,7 @@ export default function RootLayout({
             <body className={rubic.className}>
                 <Header slug={lastSegment} />
                 {children}
+                <Footer />
             </body>
         </html>
     );

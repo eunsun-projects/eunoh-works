@@ -31,7 +31,7 @@ export default function RootLayout({
             <body className={`${rubic.className} w-full h-dvh p-[0px] m-[0px] box-border`}>
                 <div className="w-full h-full flex flex-col relative">
                     <Header slug={lastSegment} />
-                    <main className="flex-1 h-full">{children}</main>
+                    <main className="flex-1 h-full flex overflow-auto">{children}</main>
                     <Footer slug={lastSegment} />
                 </div>
             </body>

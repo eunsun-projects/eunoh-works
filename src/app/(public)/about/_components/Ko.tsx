@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Ko() {
     return (
-        <div className={styles.aboutcontainer} style={{ height: "100%" }}>
+        <div className={styles.aboutcontainer}>
             <div className={styles.top}>
                 <p className={styles.name}>
                     <strong>오은 吳垠</strong>

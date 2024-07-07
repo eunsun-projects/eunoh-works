@@ -1,16 +1,12 @@
 "use client";
 
 import styles from "@/app/(public)/about/_components/about.module.css";
-// import useMobile from "@/hooks/useMobile";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import En from "./En";
 import Ko from "./Ko";
 
 export default function About() {
-    // const mobile = useMobile();
-    // const innerH = useSetInnerH(mobile);
-
     const [currLang, setCurrLang] = useState("ko");
 
     const router = useRouter();
@@ -50,7 +46,6 @@ export default function About() {
     }, [currLang, createQueryString, router, pathname]);
 
     return (
-        // <div style={{ height: `${innerH}px`}}>
         <div className="flex-1">
             <div className={styles.selector}>
                 <h2>

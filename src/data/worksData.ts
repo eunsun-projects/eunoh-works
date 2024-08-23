@@ -598,12 +598,12 @@ export const worksData: WorksByYear = {
         {
             txt: "works-viewer",
             value: 2,
-            src: "https://eunoh.pages.dev/works-viewer",
+            src: `${process.env.NEXT_PUBLIC_URL}/works-viewer`,
         },
         {
             txt: "sonny",
             value: 3,
-            src: "/sonnyinfo",
+            src: "/works/sonnyinfo",
         },
         {
             txt: "korea",

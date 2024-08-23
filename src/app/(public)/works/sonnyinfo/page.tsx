@@ -15,10 +15,7 @@ export const metadata = basicMeta;
 async function getData() {
     try {
         const response = await fetch(
-            `https://raw.githubusercontent.com/eunohhh/get_sonny_goals/main/goals/goals.json`,
-            {
-                cache: "no-store",
-            }
+            `https://raw.githubusercontent.com/eunohhh/get_sonny_goals/main/goals/goals.json`
         );
 
         if (response.ok) {

@@ -2,8 +2,8 @@ import { basicMeta } from "@/app/basicMeta";
 import Loading from "@/app/loading";
 import { sliceArrayByLimit } from "@/utils/texts/sliceArrayByLimit";
 import { Suspense } from "react";
-import { getData } from "../layout";
 import TextContents from "./_components/TextContents";
+import { getData } from "../_lib/getData";
 
 export const metadata = basicMeta;
 

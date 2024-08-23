@@ -1,5 +1,5 @@
 import Below from "../_components/BelowText";
-import { getData } from "../layout";
+import { getData } from "../_lib/getData";
 
 export default function TextSlugLayout({ children }: { children: React.ReactNode }) {
     const posts = getData();

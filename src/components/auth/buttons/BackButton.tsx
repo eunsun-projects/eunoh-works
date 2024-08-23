@@ -14,7 +14,7 @@ function BackButton() {
         <button
             onClick={handleBack}
             type="button"
-            className="relative py-0 px-4 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center justify-end group text-sm"
+            className="relative w-full py-0 px-2 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center justify-end group text-sm"
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"

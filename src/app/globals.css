@@ -5,11 +5,18 @@
 @layer utilities {
 }
 
-.link {
-    @apply p-[0px] text-black no-underline transition ease-in duration-500;
+@layer components {
 }
 
-.link:hover,
-.link:focus {
-    @apply text-[rgb(255,100,100)] bg-white;
+@layer base {
+    .link {
+        @apply p-[0px] text-black no-underline transition ease-in duration-500;
+    }
+
+    .link:hover,
+    .link:focus {
+        @apply text-[rgb(255,100,100)] bg-white;
+    }
 }
+
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200");

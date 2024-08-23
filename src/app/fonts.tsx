@@ -1,4 +1,11 @@
-import { Alumni_Sans_Collegiate_One, Gothic_A1, Rubik, Rubik_Bubbles, Rubik_Mono_One, Silkscreen } from "next/font/google";
+import {
+    Alumni_Sans_Collegiate_One,
+    Gothic_A1,
+    Rubik,
+    Rubik_Bubbles,
+    Rubik_Mono_One,
+    Silkscreen,
+} from "next/font/google";
 
 export const rubic = Rubik({
     weight: ["300", "400", "500", "600", "700", "800", "900"],

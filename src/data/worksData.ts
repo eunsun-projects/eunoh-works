@@ -598,7 +598,7 @@ export const worksData: WorksByYear = {
         {
             txt: "works-viewer",
             value: 2,
-            src: `${process.env.NEXT_PUBLIC_URL}/works-viewer`,
+            src: "https://eunoh.pages.dev/works-viewer",
         },
         {
             txt: "sonny",

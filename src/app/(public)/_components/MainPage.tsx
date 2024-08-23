@@ -10,7 +10,7 @@ function MainPage() {
                 type="module"
                 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
                 crossOrigin="anonymous"
-                strategy="lazyOnload"
+                strategy="beforeInteractive"
             ></Script>
 
             <div className={styles.container} style={{ height: "100%" }}>

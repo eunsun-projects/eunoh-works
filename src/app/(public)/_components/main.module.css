@@ -1,3 +1,6 @@
+.container {
+    flex: 1;
+}
 .upperupper {
     width: 100%;
     height: 100%;

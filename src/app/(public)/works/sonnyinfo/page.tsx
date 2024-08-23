@@ -139,7 +139,7 @@ export default async function SonnyPage() {
 
                 <p className={styles.sonnycaption}>Sonny_2023_responsive web</p>
 
-                <Link href="https://eunoh.pages.dev/sonny" target="_blank">
+                <Link href="/works/sonny" target="_blank">
                     <div
                         className={`${styles.sonnyviewpage} ${silkscreen.className}`}
                     >

@@ -10,7 +10,7 @@ function getPostSlugs() {
     return fs.readdirSync(postsDirectory);
 }
 
-export function getPostBySlug(slug: string, fields: string[]) {
+function getPostBySlug(slug: string, fields: string[]) {
     const realSlug = slug.replace(/\.md$/, ""); //파일명
     const fullPath = join(postsDirectory, `${realSlug}.md`); //해당 파일의 위치 찾기
     const fileContents = fs.readFileSync(fullPath, "utf8"); //파일 가져오기

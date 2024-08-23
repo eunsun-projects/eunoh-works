@@ -31,13 +31,13 @@
 .sonnytitle {
     color: white;
     padding-top: 2rem;
-    font-family: "DungGeunMo";
+    font-family: "NeoDunggeunmo";
     font-size: 1.875rem;
     text-align: center;
 }
 
 .sonnybanner {
-    font-family: "DungGeunMo";
+    font-family: "NeoDunggeunmo";
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -87,7 +87,7 @@
 }
 .sonnytext {
     text-align: center;
-    font-family: "DungGeunMo";
+    font-family: "NeoDunggeunmo";
     font-size: 1.125rem;
     line-height: 1.9rem;
     z-index: 10;
@@ -103,7 +103,7 @@
 .sonnycaption {
     position: relative;
     padding: 2rem 0 0;
-    font-family: "DungGeunMo";
+    font-family: "NeoDunggeunmo";
     font-size: 1.125rem;
     color: white;
     opacity: 0.6;

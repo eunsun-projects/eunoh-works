@@ -4,6 +4,20 @@ import Link from "next/link";
 import styles from "../sonny.module.css";
 import { useEffect, useRef } from "react";
 import SonnyClass from "../_class/sonny.class";
+import {
+    MdOutlineWbSunny,
+    MdOutlineWbIridescent,
+    MdLightbulbOutline,
+    MdOutlineHighlight,
+    MdGridOn,
+    MdContrast,
+    MdTripOrigin,
+    MdGridView,
+    MdGraphicEq,
+    MdBlurOn,
+    Md360,
+    MdClear,
+} from "react-icons/md";
 
 const delay = 300; // 더블 탭으로 판단하기 위한 시간 간격(밀리초)
 
@@ -12,68 +26,73 @@ function SonnyMain() {
     const rafRef = useRef<number | null>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const guiMainRef = useRef<HTMLDivElement>(null);
-    const canvasREf = useRef<HTMLDivElement>(null);
+    const canvasRef = useRef<HTMLDivElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
     const loadDivRef = useRef<HTMLDivElement>(null);
     const lastTapTime = useRef<number>(0);
     const idleTime = useRef<number>(0);
+
     const onOff = (target: HTMLElement) => {
         const rightIcon = document.querySelectorAll(".xyzright");
         rightIcon.forEach((el) => {
-            el.classList.remove("xyzon");
+            el.classList.remove(styles.xyzon);
         });
-        target.classList.add("xyzon");
+        target.classList.add(styles.xyzon);
     };
 
     const toggle = (target: HTMLElement) => {
         const rightIcon = document.querySelectorAll(".xyzright");
-        if (target.classList.value.includes("xyzon")) {
+        if (target.classList.value.includes(styles.xyzon)) {
             rightIcon.forEach((el) => {
-                el.classList.remove("xyzon");
+                el.classList.remove(styles.xyzon);
             });
             appRef.current?.removeLight();
         } else {
             onOff(target);
-            appRef.current?.lightModeChange(target.innerHTML);
+            if (target.dataset.ui) appRef.current?.lightModeChange(target.dataset.ui);
         }
     };
 
-    const handleLightClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (appRef.current !== undefined && appRef.current !== null) {
-            switch (e.currentTarget.innerText) {
-                case "360":
-                    appRef.current.toggleRotation(e.currentTarget);
-                    break;
-                case "wb_sunny":
-                    toggle(e.currentTarget);
-                    break;
-                case "wb_iridescent":
-                    toggle(e.currentTarget);
-                    break;
-                case "lightbulb":
-                    toggle(e.currentTarget);
-                    break;
-                case "highlight":
-                    toggle(e.currentTarget);
-                    break;
-                case "grid_on":
-                    appRef.current?.toggleWireframe(e.currentTarget);
-                    break;
-                case "contrast":
-                    appRef.current?.toggleMap(e.currentTarget);
-                    break;
-                case "trip_origin":
-                    appRef.current?.toggleReflection(e.currentTarget);
-                    break;
-                case "grid_view":
-                    appRef.current?.togglePixelate(e.currentTarget);
-                    break;
-                case "graphic_eq":
-                    appRef.current?.toggleGlitch(e.currentTarget);
-                    break;
-                case "blur_on":
-                    appRef.current?.toggleDotScreen(e.currentTarget);
-                    break;
+    const handleLightClick = (e: React.MouseEvent<SVGElement>) => {
+        if (appRef.current) {
+            if (e.currentTarget instanceof SVGElement) {
+                const target = e.currentTarget as unknown as HTMLElement;
+                switch (target.dataset.ui) {
+                    case "360":
+                        appRef.current.toggleRotation(target);
+                        break;
+                    case "wb_sunny":
+                        console.log(target);
+                        toggle(target);
+                        break;
+                    case "wb_iridescent":
+                        toggle(target);
+                        break;
+                    case "lightbulb":
+                        toggle(target);
+                        break;
+                    case "highlight":
+                        toggle(target);
+                        break;
+                    case "grid_on":
+                        appRef.current?.toggleWireframe(target);
+                        break;
+                    case "contrast":
+                        appRef.current?.toggleMap(target);
+                        break;
+                    case "trip_origin":
+                        appRef.current?.toggleReflection(target);
+                        break;
+                    case "grid_view":
+                        appRef.current?.togglePixelate(target);
+                        break;
+                    case "graphic_eq":
+                        appRef.current?.toggleGlitch(target);
+                        break;
+                    case "blur_on":
+                        appRef.current?.toggleDotScreen(target);
+                        break;
+                }
             }
         } else {
             console.log("not ready!");
@@ -109,13 +128,12 @@ function SonnyMain() {
     };
 
     useEffect(() => {
-        if (canvasREf.current && overlayRef.current && loadDivRef.current) {
-            appRef.current = new SonnyClass(canvasREf, overlayRef, loadDivRef);
+        if (canvasRef.current && overlayRef.current && loadDivRef.current) {
+            appRef.current = new SonnyClass(canvasRef.current, overlayRef.current, loadDivRef.current);
 
             window.onresize = appRef.current.resize.bind(appRef.current);
             appRef.current.resize();
 
-            // 렌더링 루프 시작
             const animate = () => {
                 appRef.current?.render(); // 실제 렌더링 함수
                 rafRef.current = requestAnimationFrame(animate);
@@ -142,7 +160,7 @@ function SonnyMain() {
                 cancelAnimationFrame(rafRef.current);
             }
             window.onresize = null;
-            // appRef.current?.destroy();
+            appRef.current?.destroy();
         };
     }, []);
 
@@ -158,7 +176,7 @@ function SonnyMain() {
                         <span className={styles.sonnyinfoA}>info</span>
                     </Link>
                     <Link href="/works/2023">
-                        <span className={styles.materialSymbolsOutlined}>clear</span>
+                        <MdClear className="xyzright w-6 h-6 cursor-pointer select-all pointer-events-auto" />
                     </Link>
                 </div>
 
@@ -170,22 +188,66 @@ function SonnyMain() {
 
                 <div className={styles.btm3d}>
                     <div className={styles.btmLeft3d}></div>
-                    <div className={styles.btmRight3d} onClick={handleLightClick}>
-                        <span className={`${styles.materialSymbolsOutlined}`}>360</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzright`}>wb_sunny</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzright`}>wb_iridescent</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzright`}>lightbulb</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzright`}>highlight</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzview`}>grid_on</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzview`}>contrast</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzview`}>trip_origin</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzeffects`}>grid_view</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzeffects`}>graphic_eq</span>
-                        <span className={`${styles.materialSymbolsOutlined} xyzeffects`}>blur_on</span>
+                    <div className={styles.btmRight3d}>
+                        <Md360
+                            className="xyzright w-6 h-6 cursor-pointer"
+                            data-ui="360"
+                            onClick={handleLightClick}
+                        />
+                        <MdOutlineWbSunny
+                            className="xyzright w-6 h-6 cursor-pointer"
+                            data-ui="wb_sunny"
+                            onClick={handleLightClick}
+                        />
+                        <MdOutlineWbIridescent
+                            className="xyzright w-6 h-6 cursor-pointer"
+                            data-ui="wb_iridescent"
+                            onClick={handleLightClick}
+                        />
+                        <MdLightbulbOutline
+                            className="xyzright w-6 h-6 cursor-pointer"
+                            data-ui="lightbulb"
+                            onClick={handleLightClick}
+                        />
+                        <MdOutlineHighlight
+                            className="xyzright w-6 h-6 cursor-pointer"
+                            data-ui="highlight"
+                            onClick={handleLightClick}
+                        />
+                        <MdGridOn
+                            className="xyzview w-6 h-6 cursor-pointer"
+                            data-ui="grid_on"
+                            onClick={handleLightClick}
+                        />
+                        <MdContrast
+                            className="xyzview w-6 h-6 cursor-pointer"
+                            data-ui="contrast"
+                            onClick={handleLightClick}
+                        />
+                        <MdTripOrigin
+                            className="xyzview w-6 h-6 cursor-pointer"
+                            data-ui="trip_origin"
+                            onClick={handleLightClick}
+                        />
+                        <MdGridView
+                            className="xyzeffects w-6 h-6 cursor-pointer"
+                            data-ui="grid_view"
+                            onClick={handleLightClick}
+                        />
+                        <MdGraphicEq
+                            className="xyzeffects w-6 h-6 cursor-pointer"
+                            data-ui="graphic_eq"
+                            onClick={handleLightClick}
+                        />
+                        <MdBlurOn
+                            className="xyzeffects w-6 h-6 cursor-pointer"
+                            data-ui="blur_on"
+                            onClick={handleLightClick}
+                        />
                     </div>
                 </div>
             </div>
-            <div className={styles.xyzCanvas} ref={canvasREf}></div>
+            <div className={styles.xyzCanvas} ref={canvasRef}></div>
         </div>
     );
 }

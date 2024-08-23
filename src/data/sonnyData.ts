@@ -7,7 +7,7 @@ const sonnyData = [
         material: "polystyrene foam, resin, acrylic",
         year: 2021,
         author: "Eun Oh",
-        obj: "/assets/models/sonny_high.glb",
+        obj: "/api/models/sonny",
         img: "/assets/21-1.webp",
     },
 ] as const;

@@ -1,3 +1,4 @@
+"use client";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -56,11 +57,7 @@ export default class SonnyClass {
     canvas: HTMLDivElement | null;
     overlay: HTMLDivElement | null;
     loadDiv: HTMLDivElement | null;
-    constructor(
-        canvasRef: React.RefObject<HTMLDivElement>,
-        overlayRef: React.RefObject<HTMLDivElement>,
-        loadDivRef: React.RefObject<HTMLDivElement>
-    ) {
+    constructor(canvasRef: HTMLDivElement, overlayRef: HTMLDivElement, loadDivRef: HTMLDivElement) {
         this.loadCounter = 0;
         this.nowLoading = 0;
         this.running = true; // 디스트로이 시 false 로 변경되는 상태 스테이트
@@ -79,9 +76,9 @@ export default class SonnyClass {
         this.renderPass = null;
         this.controls = null;
 
-        this.canvas = canvasRef.current;
-        this.overlay = overlayRef.current;
-        this.loadDiv = loadDivRef.current;
+        this.canvas = canvasRef;
+        this.overlay = overlayRef;
+        this.loadDiv = loadDivRef;
 
         const fixedWidth = window.innerWidth;
         const fixedHeight = window.innerHeight;
@@ -98,6 +95,7 @@ export default class SonnyClass {
         // renderer.shadowMap.bias = -0.01;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
         renderer.outputColorSpace = THREE.SRGBColorSpace;
+        if (this.canvas?.firstChild) this.canvas.removeChild(this.canvas.firstChild); // 만약 캔버스에 이미 domElement 요소가 있다면 삭제
         this.canvas?.appendChild(renderer.domElement); // 캔버스에 렌더러 적용
         this.renderer = renderer;
 
@@ -119,29 +117,22 @@ export default class SonnyClass {
         this.camera.lookAt(0, 0, 0);
         this.camera.updateProjectionMatrix();
 
-        /************* model loader ***************/
-        const loader = new GLTFLoader();
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath("/examples/jsm/libs/draco/");
-        loader.setDRACOLoader(dracoLoader);
-        this.loader = loader;
-
         /************* light ***************/
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.3);
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 10);
         hemiLight.position.set(0, 20, -20);
 
-        const pointLight = new THREE.PointLight(0xffffff, 1, 80);
-        const sunLight = new THREE.DirectionalLight(colors.sun, 1.1);
-        sunLight.position.set(0, 20, 30);
+        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+        const sunLight = new THREE.DirectionalLight(colors.sun, 7);
+        sunLight.position.set(0, 20, 0);
 
-        const iredLight = new THREE.DirectionalLight(colors.ired, 1.6);
+        const iredLight = new THREE.DirectionalLight(colors.ired, 15);
         iredLight.position.set(0, 20, 30);
 
-        const bulbLight = new THREE.DirectionalLight(colors.bulb, 1.7);
+        const bulbLight = new THREE.DirectionalLight(colors.bulb, 15);
         bulbLight.position.set(0, 20, 30);
 
-        const pinLight = new THREE.PointLight(colors.pin, 3.3, 50, 3);
-        pinLight.position.set(0, 10, 5);
+        const pinLight = new THREE.PointLight(colors.pin, 500);
+        pinLight.position.set(0, 10, 0);
 
         this.pointLight = pointLight;
         this.hemiLight = hemiLight;
@@ -157,12 +148,10 @@ export default class SonnyClass {
 
         // phong material
         const phongMaterial = new THREE.MeshPhongMaterial({
-            color: 0x8a8a8a, // 예시
+            color: 0x8a8a8a,
             // specular: 0x050505,
             // shininess: 100,
         });
-        // phongMaterial.roughness = 0.4;
-        // phongMaterial.metalness = 0.9;
         this.phongMaterial = phongMaterial;
 
         const physicalMaterial = new THREE.MeshPhysicalMaterial({
@@ -187,6 +176,13 @@ export default class SonnyClass {
         shodowMesh.position.y = -6;
         shodowMesh.receiveShadow = true;
         this.scene.add(shodowMesh);
+
+        /************* model loader ***************/
+        const loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath("/examples/jsm/libs/draco/");
+        loader.setDRACOLoader(dracoLoader);
+        this.loader = loader;
 
         /************ init App **************/
         this.setupModel(sonnyData[0]);

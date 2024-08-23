@@ -12,7 +12,7 @@ import { SonnyInfo } from "@/types/sonny.type";
 
 export const metadata = basicMeta;
 
-export async function getData() {
+async function getData() {
     try {
         const response = await fetch(
             `https://raw.githubusercontent.com/eunohhh/get_sonny_goals/main/goals/goals.json`,

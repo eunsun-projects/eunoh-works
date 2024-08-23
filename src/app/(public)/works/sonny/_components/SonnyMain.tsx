@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import styles from "../sonny.module.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import SonnyClass from "../_class/sonny.class";
-import { useRouter } from "next/navigation";
 
 const delay = 300; // 더블 탭으로 판단하기 위한 시간 간격(밀리초)
 
 function SonnyMain() {
-    const [app, setApp] = useState<SonnyClass | null>(null);
+    const appRef = useRef<SonnyClass | null>(null);
+    const rafRef = useRef<number | null>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const guiMainRef = useRef<HTMLDivElement>(null);
     const canvasREf = useRef<HTMLDivElement>(null);
@@ -17,8 +17,6 @@ function SonnyMain() {
     const loadDivRef = useRef<HTMLDivElement>(null);
     const lastTapTime = useRef<number>(0);
     const idleTime = useRef<number>(0);
-    const router = useRouter();
-
     const onOff = (target: HTMLElement) => {
         const rightIcon = document.querySelectorAll(".xyzright");
         rightIcon.forEach((el) => {
@@ -33,18 +31,18 @@ function SonnyMain() {
             rightIcon.forEach((el) => {
                 el.classList.remove("xyzon");
             });
-            app?.removeLight();
+            appRef.current?.removeLight();
         } else {
             onOff(target);
-            app?.lightModeChange(target.innerHTML);
+            appRef.current?.lightModeChange(target.innerHTML);
         }
     };
 
     const handleLightClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (app !== undefined && app !== null) {
+        if (appRef.current !== undefined && appRef.current !== null) {
             switch (e.currentTarget.innerText) {
                 case "360":
-                    app?.toggleRotation(e.currentTarget);
+                    appRef.current.toggleRotation(e.currentTarget);
                     break;
                 case "wb_sunny":
                     toggle(e.currentTarget);
@@ -59,22 +57,22 @@ function SonnyMain() {
                     toggle(e.currentTarget);
                     break;
                 case "grid_on":
-                    app?.toggleWireframe(e.currentTarget);
+                    appRef.current?.toggleWireframe(e.currentTarget);
                     break;
                 case "contrast":
-                    app?.toggleMap(e.currentTarget);
+                    appRef.current?.toggleMap(e.currentTarget);
                     break;
                 case "trip_origin":
-                    app?.toggleReflection(e.currentTarget);
+                    appRef.current?.toggleReflection(e.currentTarget);
                     break;
                 case "grid_view":
-                    app?.togglePixelate(e.currentTarget);
+                    appRef.current?.togglePixelate(e.currentTarget);
                     break;
                 case "graphic_eq":
-                    app?.toggleGlitch(e.currentTarget);
+                    appRef.current?.toggleGlitch(e.currentTarget);
                     break;
                 case "blur_on":
-                    app?.toggleDotScreen(e.currentTarget);
+                    appRef.current?.toggleDotScreen(e.currentTarget);
                     break;
             }
         } else {
@@ -84,8 +82,8 @@ function SonnyMain() {
     };
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (app) {
-            if (app.nowLoading === 0 || e.detail === 2) {
+        if (appRef.current !== undefined && appRef.current !== null) {
+            if (appRef.current.nowLoading === 0 || e.detail === 2) {
                 alert("좀 천천히하셈");
             }
         }
@@ -98,7 +96,7 @@ function SonnyMain() {
         if (timeDifference < delay && timeDifference > 0) {
             alert("좀 천천히하셈");
         } else {
-            if (app?.nowLoading === 0) {
+            if (appRef.current?.nowLoading === 0) {
                 alert("좀 천천히하셈");
             }
         }
@@ -111,14 +109,18 @@ function SonnyMain() {
     };
 
     useEffect(() => {
-        if (!app) {
-            const app = new SonnyClass(
-                guiMainRef,
-                canvasREf,
-                overlayRef,
-                loadDivRef
-            );
-            setApp(app);
+        if (canvasREf.current && overlayRef.current && loadDivRef.current) {
+            appRef.current = new SonnyClass(canvasREf, overlayRef, loadDivRef);
+
+            window.onresize = appRef.current.resize.bind(appRef.current);
+            appRef.current.resize();
+
+            // 렌더링 루프 시작
+            const animate = () => {
+                appRef.current?.render(); // 실제 렌더링 함수
+                rafRef.current = requestAnimationFrame(animate);
+            };
+            animate();
         }
         document.body.addEventListener("click", idleTimeReset);
 
@@ -127,7 +129,7 @@ function SonnyMain() {
             if (idleTime.current >= 3) {
                 // 3 minutes
                 console.log("reload!");
-                router.push("/sonny");
+                // router.push("/sonny");
             }
         }, 60000);
 
@@ -136,9 +138,13 @@ function SonnyMain() {
             if (intervalRef.current !== null) {
                 clearInterval(intervalRef.current);
             }
-            app?.destroy();
+            if (rafRef.current) {
+                cancelAnimationFrame(rafRef.current);
+            }
+            window.onresize = null;
+            // appRef.current?.destroy();
         };
-    }, [router, app]);
+    }, []);
 
     return (
         <div className={styles.guiMain3d} ref={guiMainRef}>
@@ -146,15 +152,13 @@ function SonnyMain() {
             <div className={styles.xyzNoneLandscape}>
                 <h3>Looks good in portrait mode!</h3>
             </div>
-            <div className={styles.guiWrapper3d} onClick={handleMouseDown}>
+            <div className={styles.guiWrapper3d} onClick={handleMouseDown} onTouchEnd={handleTouchEnd}>
                 <div className={styles.top3d}>
                     <Link href="/sonnyinfo">
                         <span className={styles.sonnyinfoA}>info</span>
                     </Link>
                     <Link href="/works/2023">
-                        <span className={styles.materialSymbolsOutlined}>
-                            clear
-                        </span>
+                        <span className={styles.materialSymbolsOutlined}>clear</span>
                     </Link>
                 </div>
 
@@ -166,63 +170,18 @@ function SonnyMain() {
 
                 <div className={styles.btm3d}>
                     <div className={styles.btmLeft3d}></div>
-                    <div
-                        className={styles.btmRight3d}
-                        onClick={handleLightClick}
-                    >
-                        <span className={`${styles.materialSymbolsOutlined}`}>
-                            360
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzright`}
-                        >
-                            wb_sunny
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzright`}
-                        >
-                            wb_iridescent
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzright`}
-                        >
-                            lightbulb
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzright`}
-                        >
-                            highlight
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzview`}
-                        >
-                            grid_on
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzview`}
-                        >
-                            contrast
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzview`}
-                        >
-                            trip_origin
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzeffects`}
-                        >
-                            grid_view
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzeffects`}
-                        >
-                            graphic_eq
-                        </span>
-                        <span
-                            className={`${styles.materialSymbolsOutlined} xyzeffects`}
-                        >
-                            blur_on
-                        </span>
+                    <div className={styles.btmRight3d} onClick={handleLightClick}>
+                        <span className={`${styles.materialSymbolsOutlined}`}>360</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzright`}>wb_sunny</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzright`}>wb_iridescent</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzright`}>lightbulb</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzright`}>highlight</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzview`}>grid_on</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzview`}>contrast</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzview`}>trip_origin</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzeffects`}>grid_view</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzeffects`}>graphic_eq</span>
+                        <span className={`${styles.materialSymbolsOutlined} xyzeffects`}>blur_on</span>
                     </div>
                 </div>
             </div>

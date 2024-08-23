@@ -1,4 +1,3 @@
-"use client";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -58,7 +57,6 @@ export default class SonnyClass {
     overlay: HTMLDivElement | null;
     loadDiv: HTMLDivElement | null;
     constructor(
-        guiMainRef: React.RefObject<HTMLDivElement>,
         canvasRef: React.RefObject<HTMLDivElement>,
         overlayRef: React.RefObject<HTMLDivElement>,
         loadDivRef: React.RefObject<HTMLDivElement>
@@ -100,7 +98,7 @@ export default class SonnyClass {
         // renderer.shadowMap.bias = -0.01;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
         renderer.outputColorSpace = THREE.SRGBColorSpace;
-        guiMainRef.current?.appendChild(renderer.domElement); // 캔버스에 렌더러 적용
+        this.canvas?.appendChild(renderer.domElement); // 캔버스에 렌더러 적용
         this.renderer = renderer;
 
         /************* scene ***************/
@@ -117,9 +115,7 @@ export default class SonnyClass {
             50 // far 10000
         );
         this.camera = camera;
-        this.isMobile()
-            ? this.camera.position.set(0, 2, 17)
-            : this.camera.position.set(0, 5, 27);
+        this.isMobile() ? this.camera.position.set(0, 2, 17) : this.camera.position.set(0, 5, 27);
         this.camera.lookAt(0, 0, 0);
         this.camera.updateProjectionMatrix();
 
@@ -182,23 +178,24 @@ export default class SonnyClass {
         });
         this.physicalMaterial = physicalMaterial;
 
+        /************* shadow ***************/
+        const shadowMeshGeo = new THREE.PlaneGeometry(1000, 1000);
+        shadowMeshGeo.rotateX(-Math.PI / 2);
+        const shadowMeshMat = new THREE.ShadowMaterial();
+        shadowMeshMat.opacity = 0.5;
+        const shodowMesh = new THREE.Mesh(shadowMeshGeo, shadowMeshMat);
+        shodowMesh.position.y = -6;
+        shodowMesh.receiveShadow = true;
+        this.scene.add(shodowMesh);
+
         /************ init App **************/
-        this.delCache();
-        this.setupBasicWorld();
         this.setupModel(sonnyData[0]);
         this.setupLight();
         this.setupControls();
         this.setupEffects();
-
-        window.onresize = this.resize.bind(this);
-        this.resize();
-
-        requestAnimationFrame(this.render.bind(this));
     }
     isMobile() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
-        );
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
     isAndroid() {
         return /Android/i.test(navigator.userAgent);
@@ -217,16 +214,6 @@ export default class SonnyClass {
         // pointLight.shadow.distance = 100;
         this.scene.add(this.hemiLight);
         this.scene.add(this.pointLight);
-    }
-    setupBasicWorld() {
-        const shadowMeshGeo = new THREE.PlaneGeometry(1000, 1000);
-        shadowMeshGeo.rotateX(-Math.PI / 2);
-        const shadowMeshMat = new THREE.ShadowMaterial();
-        shadowMeshMat.opacity = 0.5;
-        const shodowMesh = new THREE.Mesh(shadowMeshGeo, shadowMeshMat);
-        shodowMesh.position.y = -6;
-        shodowMesh.receiveShadow = true;
-        this.scene.add(shodowMesh);
     }
     setupModel(model: ModelData) {
         this.loader.load(
@@ -253,16 +240,11 @@ export default class SonnyClass {
                         object.receiveShadow = true;
 
                         // wireframe helper
-                        const wireframeGeometry = new THREE.WireframeGeometry(
-                            object.geometry
-                        );
+                        const wireframeGeometry = new THREE.WireframeGeometry(object.geometry);
                         const wireframeMaterial = new THREE.LineBasicMaterial({
                             color: 0xff0000,
                         });
-                        const wireframe = new THREE.LineSegments(
-                            wireframeGeometry,
-                            wireframeMaterial
-                        );
+                        const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
                         wireframe.visible = false;
                         object.add(wireframe);
 
@@ -275,15 +257,11 @@ export default class SonnyClass {
             },
             (xhr) => {
                 this.loadCounter = (xhr.loaded / xhr.total) * 100;
-
                 if (this.overlay && this.loadDiv) {
-                    this.loadDiv.innerHTML = `Loading.. ${Math.round(
-                        this.loadCounter
-                    )}%`;
-                    this.overlay.style.transition = `opacity ${
+                    this.loadDiv.innerHTML = `Loading.. ${Math.round(this.loadCounter)}%`;
+                    this.overlay.style.transition = `opacity ${this.loadCounter / 100}s ease-out ${
                         this.loadCounter / 100
-                    }s ease-out ${this.loadCounter / 100}s`;
-
+                    }s`;
                     if (this.loadCounter === 100) {
                         this.nowLoading = 1;
                         this.loadDiv.remove();
@@ -305,10 +283,7 @@ export default class SonnyClass {
     }
     setupControls() {
         /************* controls ***************/
-        const controls = new OrbitControls(
-            this.camera,
-            this.renderer.domElement
-        );
+        const controls = new OrbitControls(this.camera, this.renderer.domElement);
         controls.target.set(0, -3, 0); // 모델의 위치로 설정
         controls.minDistance = 3.5; // 객체에 가까워질 수 있는 최소 거리
         controls.maxDistance = 8; // 객체에서 멀어질 수 있는 최대 거리
@@ -325,11 +300,7 @@ export default class SonnyClass {
         this.glitchPass = glitchPass;
         // composer.addPass( glitchPass );
 
-        const renderPixelatedPass = new RenderPixelatedPass(
-            15,
-            this.scene,
-            this.camera
-        );
+        const renderPixelatedPass = new RenderPixelatedPass(15, this.scene, this.camera);
         // renderPixelatedPass.name = "pixel";
         this.pixelPass = renderPixelatedPass;
         // composer.addPass( renderPixelatedPass );
@@ -356,15 +327,11 @@ export default class SonnyClass {
 
         const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
         const ldrUrls = genCubeUrls("/assets/whitecube2/", ".png");
-        const envTexture = new THREE.CubeTextureLoader().load(
-            ldrUrls,
-            (ldrCubeMap) => {
-                this.physicalMaterial.envMap =
-                    pmremGenerator.fromCubemap(envTexture).texture;
-                pmremGenerator.dispose();
-                this.cubeMap = ldrCubeMap;
-            }
-        );
+        const envTexture = new THREE.CubeTextureLoader().load(ldrUrls, (ldrCubeMap: THREE.CubeTexture) => {
+            this.physicalMaterial.envMap = pmremGenerator.fromCubemap(envTexture).texture;
+            pmremGenerator.dispose();
+            this.cubeMap = ldrCubeMap;
+        });
 
         const renderPass = new RenderPass(this.scene, this.camera);
         renderPass.clear = false;
@@ -373,12 +340,7 @@ export default class SonnyClass {
         this.composer = composer;
     }
     removeLight() {
-        if (
-            this.sunLight ||
-            this.iredLight ||
-            this.bulbLight ||
-            this.pinLight
-        ) {
+        if (this.sunLight || this.iredLight || this.bulbLight || this.pinLight) {
             this.scene.remove(this.sunLight);
             this.scene.remove(this.iredLight);
             this.scene.remove(this.bulbLight);
@@ -389,8 +351,7 @@ export default class SonnyClass {
         this.removeLight();
         const rightIcon = document.querySelectorAll(".xyzright");
         rightIcon.forEach((e) => {
-            if (e.classList.value.includes("xyzon"))
-                e.classList.remove("xyzon");
+            if (e.classList.value.includes(styles.xyzon)) e.classList.remove(styles.xyzon);
         });
     }
     lightModeChange(target: string) {
@@ -413,15 +374,6 @@ export default class SonnyClass {
                 break;
         }
     }
-    delCache() {
-        caches.keys().then(function (keyList) {
-            return Promise.all(
-                keyList.map(function (key) {
-                    return caches.delete(key);
-                })
-            );
-        });
-    }
     resize() {
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -442,17 +394,7 @@ export default class SonnyClass {
     }
     render() {
         if (!this.running) return;
-        this.animate();
-        // this._controls.update();
-    }
-    animate() {
-        requestAnimationFrame(this.animate.bind(this));
-
-        if (this.rotateObject && this.objGroup) {
-            this.objGroup.rotation.y += -0.01;
-        }
-
-        // this._renderer.render(this._scene, this._camera);// 애를 올리면 그림자 위치 바뀜
+        if (this.rotateObject && this.objGroup) this.objGroup.rotation.y += -0.01;
         this.composer?.render();
     }
     destroy() {
@@ -470,9 +412,7 @@ export default class SonnyClass {
             // Material 삭제
             if (object instanceof THREE.Mesh && object.material) {
                 if (Array.isArray(object.material)) {
-                    object.material.forEach((material) =>
-                        this.disposeMaterial(material)
-                    );
+                    object.material.forEach((material: THREE.Material) => this.disposeMaterial(material));
                     console.log("material array disposed!");
                 } else {
                     this.disposeMaterial(object.material);
@@ -483,18 +423,13 @@ export default class SonnyClass {
     }
     disposeMaterial(material: THREE.Material) {
         // 텍스처 삭제
-        if (material instanceof THREE.MeshBasicMaterial && material.map)
-            material.map.dispose();
-        if (material instanceof THREE.MeshPhongMaterial && material.lightMap)
-            material.lightMap.dispose();
-        if (material instanceof THREE.MeshPhongMaterial && material.bumpMap)
-            material.bumpMap.dispose();
-        if (material instanceof THREE.MeshPhongMaterial && material.normalMap)
-            material.normalMap.dispose();
+        if (material instanceof THREE.MeshBasicMaterial && material.map) material.map.dispose();
+        if (material instanceof THREE.MeshPhongMaterial && material.lightMap) material.lightMap.dispose();
+        if (material instanceof THREE.MeshPhongMaterial && material.bumpMap) material.bumpMap.dispose();
+        if (material instanceof THREE.MeshPhongMaterial && material.normalMap) material.normalMap.dispose();
         if (material instanceof THREE.MeshPhongMaterial && material.specularMap)
             material.specularMap.dispose();
-        if (material instanceof THREE.MeshPhysicalMaterial && material.envMap)
-            material.envMap.dispose();
+        if (material instanceof THREE.MeshPhysicalMaterial && material.envMap) material.envMap.dispose();
         // Material 자체 삭제
         material.dispose();
     }
@@ -524,9 +459,7 @@ export default class SonnyClass {
             this.xyzonViewRemove();
             if (this.wireframe) this.wireframe.visible = false;
             if (this.baseMesh)
-                this.baseMesh.material = this.originalMaterial
-                    ? this.originalMaterial
-                    : this.basicMaterial;
+                this.baseMesh.material = this.originalMaterial ? this.originalMaterial : this.basicMaterial;
         } else {
             this.xyzonViewRemove();
             target.classList.add(styles.xyzon);
@@ -539,9 +472,7 @@ export default class SonnyClass {
         if (target.classList.value.includes(styles.xyzon)) {
             this.xyzonViewRemove();
             if (this.baseMesh)
-                this.baseMesh.material = this.originalMaterial
-                    ? this.originalMaterial
-                    : this.basicMaterial;
+                this.baseMesh.material = this.originalMaterial ? this.originalMaterial : this.basicMaterial;
         } else {
             this.xyzonViewRemove();
             target.classList.add(styles.xyzon);
@@ -554,9 +485,7 @@ export default class SonnyClass {
         if (target.classList.value.includes(styles.xyzon)) {
             this.xyzonViewRemove();
             if (this.baseMesh)
-                this.baseMesh.material = this.originalMaterial
-                    ? this.originalMaterial
-                    : this.basicMaterial;
+                this.baseMesh.material = this.originalMaterial ? this.originalMaterial : this.basicMaterial;
             if (this.scene) this.scene.background = new THREE.Color(0xc7c7c7);
         } else {
             this.xyzonViewRemove();

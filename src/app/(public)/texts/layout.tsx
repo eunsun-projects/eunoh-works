@@ -6,7 +6,7 @@ import { join } from "path";
 
 const postsDirectory = join(process.cwd(), "src/md"); //루트를 기준으로 markdown 파일들이 있는 폴더 위치 알리기
 
-export function getPostSlugs() {
+function getPostSlugs() {
     return fs.readdirSync(postsDirectory);
 }
 
@@ -36,9 +36,14 @@ export function getPostBySlug(slug: string, fields: string[]) {
 
 export function getData() {
     const slugs = getPostSlugs(); // 로컬의 모든 md 파일 파일명을 기준으로 배열 생성
-    const posts = slugs.map((e) => getPostBySlug(e, ["value", "page", "title", "href", "author", "date", "content"])); // 모든 포스트 자바스크립트 객체화하여 배열로 리턴
+    const posts = slugs.map((e) =>
+        getPostBySlug(e, ["value", "page", "title", "href", "author", "date", "content"])
+    ); // 모든 포스트 자바스크립트 객체화하여 배열로 리턴
 
-    posts.sort((first, second) => new Date(second.date as string).getTime() - new Date(first.date as string).getTime());
+    posts.sort(
+        (first, second) =>
+            new Date(second.date as string).getTime() - new Date(first.date as string).getTime()
+    );
 
     return posts;
 }

@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { basicMeta } from "./basicMeta";
 import { rubic } from "./fonts";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = basicMeta;
 
@@ -38,6 +39,7 @@ export default function RootLayout({
                     </main>
                     <Footer slug={lastSegment} />
                 </div>
+                <Analytics />
             </body>
         </html>
     );

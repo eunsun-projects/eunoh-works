@@ -15,7 +15,7 @@ async function getBlurredImageAsBase64(imgPath: string) {
     // 이미지를 작은 크기로 리사이즈하고 블러 처리
     const resizedBuffer = await sharp(imageBuffer)
         .resize(20, 20) // 작은 크기로 리사이즈
-        .blur(8) // 블러 처리
+        .blur(4) // 블러 처리
         .toBuffer();
 
     // base64로 인코딩하여 반환

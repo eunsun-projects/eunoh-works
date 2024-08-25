@@ -1,24 +1,16 @@
 "use client";
 import styles from "@/app/(public)/works/[slug]/_components/work.module.css";
 import styles23 from "@/app/(public)/works/[slug]/_components/work23after.module.css";
+import { useBlurImageContext } from "@/context/blurImageContext";
 import { worksData } from "@/data/worksData";
-import { Plaiceholder, Work } from "@/types/data.type";
+import { Work } from "@/types/data.type";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import ImageModal from "./ImageModal";
 
-export default function EveryWorks({
-    year,
-    blurredImages,
-}: {
-    year: string;
-    blurredImages: {
-        width: number;
-        height: number;
-        base64: string;
-    }[];
-}) {
+export default function EveryWorks({ year }: { year: string }) {
+    const blurredImages = useBlurImageContext();
     const [selected, setSelected] = useState<Work | null>(null);
 
     const handleClick = (item: Work) => () => setSelected(item);
@@ -42,14 +34,15 @@ export default function EveryWorks({
                                         className={styles.image}
                                         src={image.src}
                                         alt={image.txt}
-                                        // fill
-                                        width={blurredImages[idx].width}
-                                        height={blurredImages[idx].height}
+                                        width={blurredImages[year][idx].width}
+                                        height={blurredImages[year][idx].height}
                                         onClick={handleClick(image)}
-                                        // loading="lazy"
+                                        loading="lazy"
                                         placeholder="blur"
                                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        blurDataURL={blurredImages[idx].base64}
+                                        blurDataURL={
+                                            blurredImages[year][idx].base64
+                                        }
                                     />
                                 </div>
                             );

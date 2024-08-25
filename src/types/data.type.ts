@@ -36,3 +36,13 @@ export type Plaiceholder = {
     pixels: {}[][];
 };
 [];
+
+export type BlurredImage = {
+    width: number;
+    height: number;
+    base64: string;
+};
+
+export type BlurredImagesByYear = {
+    [year: string]: BlurredImage[];
+};

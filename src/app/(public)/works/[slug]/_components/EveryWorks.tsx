@@ -8,7 +8,13 @@ import Link from "next/link";
 import { useState } from "react";
 import ImageModal from "./ImageModal";
 
-export default function EveryWorks({ year, blurredImages }: { year: string; blurredImages: Plaiceholder[] }) {
+export default function EveryWorks({
+    year,
+    blurredImages,
+}: {
+    year: string;
+    blurredImages: Plaiceholder[];
+}) {
     const [selected, setSelected] = useState<Work | null>(null);
 
     const handleClick = (item: Work) => () => setSelected(item);
@@ -17,15 +23,20 @@ export default function EveryWorks({ year, blurredImages }: { year: string; blur
     if (Number(year) < 2023) {
         return (
             <>
-                {selected && <ImageModal selected={selected} setSelected={setSelected} />}
+                {selected && (
+                    <ImageModal selected={selected} setSelected={setSelected} />
+                )}
                 <div className="overflow-y-auto flex-1">
                     <div className={styles.column}>
-                        {worksData[year].map(async (image, idx) => {
+                        {worksData[year].map((image, idx) => {
                             return (
-                                <div key={image.txt} className="relative aspect-auto w-[80%] h-auto cursor-pointer">
+                                <div
+                                    key={image.txt}
+                                    className="relative w-[80%] h-auto cursor-pointer"
+                                >
                                     <Image
                                         className={styles.image}
-                                        src={image.src}
+                                        src={blurredImages[idx].img.imgPath}
                                         alt={image.txt}
                                         // fill
                                         width={blurredImages[idx].img.width}

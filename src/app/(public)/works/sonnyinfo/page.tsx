@@ -1,21 +1,25 @@
 // import SonnyInfo from "./_components/sonnyInfo";
-import Link from "next/link";
+import styles from "@/app/(public)/works/sonnyinfo/sonnyinfo.module.css";
+import { basicMeta } from "@/app/basicMeta";
+import { alumni, rubicmono, silkscreen } from "@/app/fonts";
+import { SonnyInfo } from "@/types/sonny.type";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import SonnyGoals from "./_components/SonnyGoals";
 const Timer = dynamic(() => import("@/app/(public)/works/sonnyinfo/_components/Timer"), {
     ssr: false,
 });
-import { alumni, rubicmono, silkscreen } from "@/app/fonts";
-import styles from "@/app/(public)/works/sonnyinfo/sonnyinfo.module.css";
-import { basicMeta } from "@/app/basicMeta";
-import SonnyGoals from "./_components/SonnyGoals";
-import { SonnyInfo } from "@/types/sonny.type";
 
 export const metadata = basicMeta;
 
 async function getData() {
     try {
         const response = await fetch(
-            `https://raw.githubusercontent.com/eunohhh/get_sonny_goals/main/goals/goals.json`
+            `https://raw.githubusercontent.com/eunohhh/get_sonny_goals/main/goals/goals.json`,
+            {
+                method: "GET",
+                cache: "no-store",
+            }
         );
 
         if (response.ok) {

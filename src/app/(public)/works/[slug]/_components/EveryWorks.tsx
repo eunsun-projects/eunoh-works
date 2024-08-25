@@ -13,7 +13,11 @@ export default function EveryWorks({
     blurredImages,
 }: {
     year: string;
-    blurredImages: Plaiceholder[];
+    blurredImages: {
+        width: number;
+        height: number;
+        base64: string;
+    }[];
 }) {
     const [selected, setSelected] = useState<Work | null>(null);
 
@@ -36,15 +40,15 @@ export default function EveryWorks({
                                 >
                                     <Image
                                         className={styles.image}
-                                        src={blurredImages[idx].img.imgPath}
+                                        src={image.src}
                                         alt={image.txt}
                                         // fill
-                                        width={blurredImages[idx].img.width}
-                                        height={blurredImages[idx].img.height}
+                                        width={blurredImages[idx].width}
+                                        height={blurredImages[idx].height}
                                         onClick={handleClick(image)}
-                                        loading="lazy"
+                                        // loading="lazy"
                                         placeholder="blur"
-                                        sizes="100vw"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                         blurDataURL={blurredImages[idx].base64}
                                     />
                                 </div>

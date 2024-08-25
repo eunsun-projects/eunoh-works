@@ -14,7 +14,9 @@ export default async function Page({ params }: { params: { slug: string } }) {
     const year: Year = years_data.find((e) => e.year === slug)!;
     const works = worksData[year.year];
     const images = works.map((e) => e.src);
-    const blurredImages = (await Promise.all(images.map((image) => getBase64(image)))) as Plaiceholder[];
+    const blurredImages = (await Promise.all(
+        images.map((image) => getBase64(image))
+    )) as Plaiceholder[];
 
     if (slug.length > 0 && year) {
         return (

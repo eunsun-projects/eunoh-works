@@ -49,7 +49,8 @@ function SonnyMain() {
             appRef.current?.removeLight();
         } else {
             onOff(target);
-            if (target.dataset.ui) appRef.current?.lightModeChange(target.dataset.ui);
+            if (target.dataset.ui)
+                appRef.current?.lightModeChange(target.dataset.ui);
         }
     };
 
@@ -129,7 +130,11 @@ function SonnyMain() {
 
     useEffect(() => {
         if (canvasRef.current && overlayRef.current && loadDivRef.current) {
-            appRef.current = new SonnyClass(canvasRef.current, overlayRef.current, loadDivRef.current);
+            appRef.current = new SonnyClass(
+                canvasRef.current,
+                overlayRef.current,
+                loadDivRef.current
+            );
 
             window.onresize = appRef.current.resize.bind(appRef.current);
             appRef.current.resize();
@@ -170,9 +175,13 @@ function SonnyMain() {
             <div className={styles.xyzNoneLandscape}>
                 <h3>Looks good in portrait mode!</h3>
             </div>
-            <div className={styles.guiWrapper3d} onClick={handleMouseDown} onTouchEnd={handleTouchEnd}>
+            <div
+                className={styles.guiWrapper3d}
+                onClick={handleMouseDown}
+                onTouchEnd={handleTouchEnd}
+            >
                 <div className={styles.top3d}>
-                    <Link href="/sonnyinfo">
+                    <Link href="/works/sonnyinfo">
                         <span className={styles.sonnyinfoA}>info</span>
                     </Link>
                     <Link href="/works/2023">

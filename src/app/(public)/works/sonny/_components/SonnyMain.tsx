@@ -1,23 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import styles from "../sonny.module.css";
 import { useEffect, useRef } from "react";
-import SonnyClass from "../_class/sonny.class";
 import {
-    MdOutlineWbSunny,
-    MdOutlineWbIridescent,
+    Md360,
+    MdBlurOn,
+    MdClear,
+    MdContrast,
+    MdGraphicEq,
+    MdGridOn,
+    MdGridView,
     MdLightbulbOutline,
     MdOutlineHighlight,
-    MdGridOn,
-    MdContrast,
+    MdOutlineWbIridescent,
+    MdOutlineWbSunny,
     MdTripOrigin,
-    MdGridView,
-    MdGraphicEq,
-    MdBlurOn,
-    Md360,
-    MdClear,
 } from "react-icons/md";
+import SonnyClass from "../_class/sonny.class";
+import styles from "../sonny.module.css";
 
 const delay = 300; // 더블 탭으로 판단하기 위한 시간 간격(밀리초)
 
@@ -49,8 +49,7 @@ function SonnyMain() {
             appRef.current?.removeLight();
         } else {
             onOff(target);
-            if (target.dataset.ui)
-                appRef.current?.lightModeChange(target.dataset.ui);
+            if (target.dataset.ui) appRef.current?.lightModeChange(target.dataset.ui);
         }
     };
 
@@ -130,11 +129,7 @@ function SonnyMain() {
 
     useEffect(() => {
         if (canvasRef.current && overlayRef.current && loadDivRef.current) {
-            appRef.current = new SonnyClass(
-                canvasRef.current,
-                overlayRef.current,
-                loadDivRef.current
-            );
+            appRef.current = new SonnyClass(canvasRef.current, overlayRef.current, loadDivRef.current);
 
             window.onresize = appRef.current.resize.bind(appRef.current);
             appRef.current.resize();
@@ -156,7 +151,10 @@ function SonnyMain() {
             }
         }, 60000);
 
+        document.documentElement.style.overscrollBehavior = "none";
+
         return () => {
+            document.documentElement.style.overscrollBehavior = "auto";
             document.body.removeEventListener("click", idleTimeReset);
             if (intervalRef.current !== null) {
                 clearInterval(intervalRef.current);
@@ -175,11 +173,7 @@ function SonnyMain() {
             <div className={styles.xyzNoneLandscape}>
                 <h3>Looks good in portrait mode!</h3>
             </div>
-            <div
-                className={styles.guiWrapper3d}
-                onClick={handleMouseDown}
-                onTouchEnd={handleTouchEnd}
-            >
+            <div className={styles.guiWrapper3d} onClick={handleMouseDown} onTouchEnd={handleTouchEnd}>
                 <div className={styles.top3d}>
                     <Link href="/works/sonnyinfo">
                         <span className={styles.sonnyinfoA}>info</span>

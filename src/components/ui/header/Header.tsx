@@ -13,7 +13,10 @@ export default async function Header({ slug }: { slug: string | undefined }) {
     } = await supabase.auth.getUser();
 
     return (
-        <header className="pt-[0.3vh] relative" style={{ display: slug === "sonnyinfo" ? "none" : "block" }}>
+        <header
+            className="pt-[0.3vh] relative"
+            style={{ display: slug === "sonnyinfo" || slug === "sonny" ? "none" : "block" }}
+        >
             <div className="relative">
                 <ul className={styles.topmenu}>
                     <li className={`${styles.eunoh} ${rubicBubbles.className}`}>

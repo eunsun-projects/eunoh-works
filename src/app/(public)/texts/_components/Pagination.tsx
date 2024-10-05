@@ -1,6 +1,6 @@
 "use client";
 import styles from "@/app/(public)/texts/_components/texts.module.css";
-import useTextIndex from "@/hooks/useTextindex";
+import usePagination from "@/hooks/useTextindex";
 import { PaginationProps } from "@/types/texts.type";
 import { sliceArrayByLimit } from "@/utils/texts/sliceArrayByLimit";
 import Link from "next/link";
@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 const Pagination = ({ totalPage, limit, page, curr }: PaginationProps) => {
     const {
         setAction: { setPage, setCurrNum },
-    } = useTextIndex();
+    } = usePagination();
     const router = useRouter();
 
     const totalPageArray = useMemo(() => {

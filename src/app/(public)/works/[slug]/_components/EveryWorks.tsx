@@ -28,7 +28,7 @@ export default function EveryWorks({ year }: { year: string }) {
                             return (
                                 <div
                                     key={image.txt}
-                                    className="relative w-[80%] h-auto cursor-pointer"
+                                    className="relative w-[80%] h-auto cursor-pointer flex justify-center items-center"
                                 >
                                     <Image
                                         className={styles.image}

@@ -1,6 +1,6 @@
 "use client";
 import styles from "@/app/(public)/texts/_components/texts.module.css";
-import useTextIndex from "@/hooks/useTextindex";
+import usePagination from "@/hooks/useTextindex";
 import { TextProps } from "@/types/texts.type";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import Pagination from "./Pagination";
 
 export default function Below({ posts }: TextProps) {
     const pathname = usePathname();
-    const { index: value, curr, setAction: action } = useTextIndex();
+    const { index: value, curr, setAction: action } = usePagination();
     const router = useRouter();
 
     const handleClick = () => {

@@ -2,12 +2,12 @@
 
 import styles from "@/app/(public)/texts/_components/texts.module.css";
 import { gothicA1 } from "@/app/fonts";
-import useTextIndex from "@/hooks/useTextindex";
+import usePagination from "@/hooks/useTextindex";
 import { TextType } from "@/types/texts.type";
 import Link from "next/link";
 
 export default function MainLists({ posts }: { posts: TextType[] }) {
-    const { index: value, curr, setAction: action } = useTextIndex();
+    const { index: value, curr, setAction: action } = usePagination();
 
     const handleClick = (index: number) => () => {
         action.setPage(index);

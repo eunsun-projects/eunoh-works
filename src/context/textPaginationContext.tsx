@@ -4,9 +4,9 @@ import { createContext, useMemo, useState } from "react";
 
 const initialState: ContextValueType = { index: 0, curr: null, setAction: { setPage: () => {}, setCurrNum: () => {} } };
 
-const CounterContext = createContext<ContextValueType>(initialState);
+const TextPaginationContext = createContext<ContextValueType>(initialState);
 
-function TextIndexProvider({ children }: { children: React.ReactNode }) {
+function TextPaginationProvider({ children }: { children: React.ReactNode }) {
     const [index, setIndex] = useState(0);
     const [curr, setCurr] = useState<number | null>(null);
     const setAction = useMemo(
@@ -19,7 +19,8 @@ function TextIndexProvider({ children }: { children: React.ReactNode }) {
 
     const value: ContextValueType = useMemo(() => ({ index, curr, setAction }), [index, curr, setAction]);
 
-    return <CounterContext.Provider value={value}>{children}</CounterContext.Provider>;
+    return <TextPaginationContext.Provider value={value}>{children}</TextPaginationContext.Provider>;
 }
 
-export { CounterContext, TextIndexProvider };
+export { TextPaginationContext, TextPaginationProvider };
+

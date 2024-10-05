@@ -1,5 +1,5 @@
-import { TextIndexProvider } from "@/context/textIndexContext";
+import { TextPaginationProvider } from "@/context/textPaginationContext";
 
 export default function TextsLayout({ children }: { children: React.ReactNode }) {
-    return <TextIndexProvider>{children}</TextIndexProvider>;
+    return <TextPaginationProvider>{children}</TextPaginationProvider>;
 }

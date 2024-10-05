@@ -2,14 +2,14 @@
 "use client";
 import styles from "@/app/(public)/texts/[slug]/_components/text.module.css";
 import { gothicA1 } from "@/app/fonts";
-import useTextIndex from "@/hooks/useTextindex";
+import usePagination from "@/hooks/useTextindex";
 import { TextType } from "@/types/texts.type";
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export default function TextContents({ post, pageArr }: { post: TextType; pageArr: number[][] }) {
-    const { setAction: action } = useTextIndex();
+    const { setAction: action } = usePagination();
     // const mobile = useIfMobile();
     // const innerH = useSetInnerH(mobile);
 

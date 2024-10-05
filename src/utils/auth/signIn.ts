@@ -1,6 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { emailRegex } from "../common/commonRegexs";
 
 const signIn = async (formData: FormData) => {
     "use server";
@@ -38,9 +37,9 @@ const signIn = async (formData: FormData) => {
 
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        // options: {
-        //     redirectTo: `${getUrl()}api/auth/callback`,
-        // },
+        options: {
+            redirectTo: `${getUrl()}api/auth/callback`,
+        },
     });
 
     if (error) {

@@ -1,16 +1,17 @@
 "use client";
+
+import styles from "@/app/(public)/works/sonny/sonny.module.css";
+import sonnyData from "@/data/sonnyData";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { GlitchPass } from "three/addons/postprocessing/GlitchPass.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { RenderPixelatedPass } from "three/addons/postprocessing/RenderPixelatedPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { DotScreenShader } from "three/addons/shaders/DotScreenShader.js";
-import sonnyData from "@/data/sonnyData";
-import styles from "@/app/(public)/works/sonny/sonny.module.css";
 
 type ModelData = (typeof sonnyData)[number];
 

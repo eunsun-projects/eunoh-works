@@ -1,5 +1,6 @@
 import Footer from "@/components/ui/footer/Footer";
 import Header from "@/components/ui/header/Header";
+import QueryProvider from "@/providers/QueryProvider";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
@@ -30,11 +31,13 @@ export default function RootLayout({
     return (
         <html lang="ko">
             <body className={`${rubic.className} w-full h-dvh p-[0px] m-[0px] box-border`}>
+                <QueryProvider>
                 <section className="w-full h-full flex flex-col relative">
                     <Header slug={lastSegment} />
                     <main className="flex-1 h-full w-full flex overflow-auto">{children}</main>
-                    <Footer slug={lastSegment} />
-                </section>
+                        <Footer slug={lastSegment} />
+                    </section>
+                </QueryProvider>
                 <Analytics />
             </body>
         </html>

@@ -43,7 +43,8 @@ function WorksViewerTemplate() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const lastTapTime = useRef<number>(0);
   const idleTime = useRef<number>(0);
-
+  const temporalRef = useRef<HTMLDivElement>(null);
+  const guiWrapperRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const { scrollHandlers } =
@@ -191,15 +192,33 @@ function WorksViewerTemplate() {
     [appRef],
   );
 
+  const preventTouch = useCallback(() => {
+    if (temporalRef.current && guiWrapperRef.current && imagesRef.current) {
+      temporalRef.current.style.display = 'flex';
+      temporalRef.current.style.opacity = '1';
+      guiWrapperRef.current.style.opacity = '0.8';
+      guiWrapperRef.current.style.pointerEvents = 'none';
+      guiWrapperRef.current.style.touchAction = 'none';
+      imagesRef.current.style.pointerEvents = 'none';
+      imagesRef.current.style.touchAction = 'none';
+    }
+  }, []);
+
   const handleNext = useCallback(() => {
-    appRef.current?.next();
-    setSelected((prev) => prev + 1);
-  }, [appRef, setSelected]);
+    preventTouch();
+    if (appRef.current && viewerData && selected < viewerData.length - 1) {
+      appRef.current?.next();
+      setSelected((prev) => prev + 1);
+    }
+  }, [appRef, setSelected, viewerData, selected, preventTouch]);
 
   const handlePrev = useCallback(() => {
-    appRef.current?.prev();
-    setSelected((prev) => prev - 1);
-  }, [appRef, setSelected]);
+    preventTouch();
+    if (appRef.current && viewerData && selected > 0) {
+      appRef.current?.prev();
+      setSelected((prev) => prev - 1);
+    }
+  }, [appRef, setSelected, viewerData, selected, preventTouch]);
 
   const handleThumbnailClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -208,12 +227,16 @@ function WorksViewerTemplate() {
           const target = e.target;
           const num = target.dataset.num;
           if (num) {
+            if (parseInt(num) === selected) return;
+            preventTouch();
             setSelected(parseInt(num));
+            appRef.current.selectedChange(parseInt(num));
+            scrollToSelected(parseInt(num));
           }
         }
       }
     },
-    [appRef, setSelected],
+    [appRef, setSelected, scrollToSelected, selected, preventTouch],
   );
 
   useEffect(() => {
@@ -221,13 +244,6 @@ function WorksViewerTemplate() {
       console.error(error);
     }
   }, [error]);
-
-  useEffect(() => {
-    if (appRef.current) {
-      appRef.current.selectedChange(selected);
-      scrollToSelected(selected);
-    }
-  }, [selected, scrollToSelected]);
 
   useEffect(() => {
     if (canvasRef.current && viewerData) {
@@ -278,107 +294,115 @@ function WorksViewerTemplate() {
   }, [router]);
 
   return (
-    <div className={styles.guiMain3d} ref={guiMainRef}>
-      <div className={styles.temporal}></div>
-      <div className={styles.xyzNoneLandscape}>
-        <h3>Looks good in portrait mode!</h3>
-      </div>
-      <div className={styles.guiWrapper3d} onClick={handleMouseDown} onTouchEnd={handleTouchEnd}>
-        <div className={styles.top3d}>
-          <Link href="/works/2023">
-            <MdClear className="xyzright w-6 h-6 cursor-pointer select-all pointer-events-auto" />
-          </Link>
-        </div>
+    <>
+      <div className={styles.temporal} ref={temporalRef} />
 
-        <div className={styles.mid3d}>
-          <div className={styles.midLeft3d}>
-            <MdNavigateBefore
-              className="xyznavigate w-6 h-6 cursor-pointer select-all pointer-events-auto"
-              onClick={handlePrev}
-            />
-          </div>
-          <div className={styles.midRight3d}>
-            <MdNavigateNext
-              className="xyznavigate w-6 h-6 cursor-pointer select-all pointer-events-auto"
-              onClick={handleNext}
-            />
-          </div>
-          <div className={styles.xyzLoading}></div>
+      <div className={styles.guiMain3d} ref={guiMainRef}>
+        <div className={styles.xyzNoneLandscape}>
+          <h3>Looks good in portrait mode!</h3>
         </div>
-
-        <div className={styles.midInfo}>
-          <p>{viewerData?.[selected].title}</p>
-          <p>{viewerData?.[selected].author}</p>
-          <p>{viewerData?.[selected].year}</p>
-          <p>{viewerData?.[selected].size}</p>
-          <p>{viewerData?.[selected].material}</p>
-        </div>
-
-        <div className={styles.btm3d}>
-          <div className={styles.btmLeft3d} onClick={handleBottomLeftClick}>
-            <MdExpandLess
-              className={cn(
-                'xyzleft w-6 h-6 cursor-pointer',
-                isBottomVisible ? 'hidden' : 'visible',
-              )}
-              data-ui="expand_less"
-            />
-            <MdExpandMore
-              className={cn(
-                'xyzleft w-6 h-6 cursor-pointer',
-                isBottomVisible ? 'visible' : 'hidden',
-              )}
-              data-ui="expand_more"
-            />
-            <MdQuestionMark className="xyzleft w-6 h-6 cursor-pointer" data-ui="question_mark" />
+        <div
+          className={styles.guiWrapper3d}
+          onClick={handleMouseDown}
+          onTouchEnd={handleTouchEnd}
+          ref={guiWrapperRef}
+        >
+          <div className={styles.top3d}>
+            <Link href="/works/2023">
+              <MdClear className="xyzright w-6 h-6 cursor-pointer select-all pointer-events-auto" />
+            </Link>
           </div>
-          <div className={styles.btmRight3d} onClick={handleBottomRightClick}>
-            <Md360 className="xyzright w-6 h-6 cursor-pointer" data-ui="360" />
-            <MdOutlineWbSunny className="xyzright w-6 h-6 cursor-pointer" data-ui="wb_sunny" />
-            <MdOutlineWbIridescent
-              className="xyzright w-6 h-6 cursor-pointer"
-              data-ui="wb_iridescent"
-            />
-            <MdLightbulbOutline className="xyzright w-6 h-6 cursor-pointer" data-ui="lightbulb" />
-            <MdOutlineHighlight className="xyzright w-6 h-6 cursor-pointer" data-ui="highlight" />
-            <MdGridOn className="xyzview w-6 h-6 cursor-pointer" data-ui="grid_on" />
-            <MdContrast className="xyzview w-6 h-6 cursor-pointer" data-ui="contrast" />
-            <MdGridView className="xyzeffects w-6 h-6 cursor-pointer" data-ui="grid_view" />
-            <MdGraphicEq className="xyzeffects w-6 h-6 cursor-pointer" data-ui="graphic_eq" />
-            <MdBlurOn className="xyzeffects w-6 h-6 cursor-pointer" data-ui="blur_on" />
-          </div>
-        </div>
 
-        <div className={`${styles.guiSwipe3d} ${styles.xyzhide}`}>
-          <div className={styles.guiSwipeEachBox} ref={imagesRef} onClick={handleThumbnailClick}>
-            {viewerData?.map((item, index) => (
-              <div
-                className={styles.guiSwipeEach}
-                key={item.id}
-                data-num={index}
-                style={{ backgroundImage: `url(${item.thumb})` }}
+          <div className={styles.mid3d}>
+            <div className={styles.midLeft3d}>
+              <MdNavigateBefore
+                className="xyznavigate w-6 h-6 cursor-pointer select-all pointer-events-auto"
+                onClick={handlePrev}
               />
-            ))}
-            {scrollHandlers?.createScrollLeft && scrollHandlers?.createScrollRight && (
-              <div className="absolute flex w-dvw h-full top-[50%]">
-                <Navigate
-                  mode="before"
-                  onClick={scrollHandlers.createScrollLeft()}
-                  className={cn(isBottomVisible ? 'visible' : 'hidden')}
+            </div>
+            <div className={styles.midRight3d}>
+              <MdNavigateNext
+                className="xyznavigate w-6 h-6 cursor-pointer select-all pointer-events-auto"
+                onClick={handleNext}
+              />
+            </div>
+            <div className={styles.xyzLoading}></div>
+          </div>
+
+          <div className={styles.midInfo}>
+            <p>{viewerData?.[selected].title}</p>
+            <p>{viewerData?.[selected].author}</p>
+            <p>{viewerData?.[selected].year}</p>
+            <p>{viewerData?.[selected].size}</p>
+            <p>{viewerData?.[selected].material}</p>
+          </div>
+
+          <div className={styles.btm3d}>
+            <div className={styles.btmLeft3d} onClick={handleBottomLeftClick}>
+              <MdExpandLess
+                className={cn(
+                  'xyzleft w-6 h-6 cursor-pointer',
+                  isBottomVisible ? 'hidden' : 'visible',
+                )}
+                data-ui="expand_less"
+              />
+              <MdExpandMore
+                className={cn(
+                  'xyzleft w-6 h-6 cursor-pointer',
+                  isBottomVisible ? 'visible' : 'hidden',
+                )}
+                data-ui="expand_more"
+              />
+              <MdQuestionMark className="xyzleft w-6 h-6 cursor-pointer" data-ui="question_mark" />
+            </div>
+            <div className={styles.btmRight3d} onClick={handleBottomRightClick}>
+              <Md360 className="xyzright w-6 h-6 cursor-pointer" data-ui="360" />
+              <MdOutlineWbSunny className="xyzright w-6 h-6 cursor-pointer" data-ui="wb_sunny" />
+              <MdOutlineWbIridescent
+                className="xyzright w-6 h-6 cursor-pointer"
+                data-ui="wb_iridescent"
+              />
+              <MdLightbulbOutline className="xyzright w-6 h-6 cursor-pointer" data-ui="lightbulb" />
+              <MdOutlineHighlight className="xyzright w-6 h-6 cursor-pointer" data-ui="highlight" />
+              <MdGridOn className="xyzview w-6 h-6 cursor-pointer" data-ui="grid_on" />
+              <MdContrast className="xyzview w-6 h-6 cursor-pointer" data-ui="contrast" />
+              <MdGridView className="xyzeffects w-6 h-6 cursor-pointer" data-ui="grid_view" />
+              <MdGraphicEq className="xyzeffects w-6 h-6 cursor-pointer" data-ui="graphic_eq" />
+              <MdBlurOn className="xyzeffects w-6 h-6 cursor-pointer" data-ui="blur_on" />
+            </div>
+          </div>
+
+          <div className={`${styles.guiSwipe3d} ${styles.xyzhide}`}>
+            <div className={styles.guiSwipeEachBox} ref={imagesRef} onClick={handleThumbnailClick}>
+              {viewerData?.map((item, index) => (
+                <div
+                  className={styles.guiSwipeEach}
+                  key={item.id}
+                  data-num={index}
+                  style={{ backgroundImage: `url(${item.thumb})` }}
                 />
-                <Navigate
-                  mode="after"
-                  onClick={scrollHandlers.createScrollRight()}
-                  className={cn(isBottomVisible ? 'visible' : 'hidden')}
-                />
-              </div>
-            )}
+              ))}
+              {scrollHandlers?.createScrollLeft && scrollHandlers?.createScrollRight && (
+                <div className="absolute flex w-dvw h-full top-[50%]">
+                  <Navigate
+                    mode="before"
+                    onClick={scrollHandlers.createScrollLeft()}
+                    className={cn(isBottomVisible ? 'visible' : 'hidden')}
+                  />
+                  <Navigate
+                    mode="after"
+                    onClick={scrollHandlers.createScrollRight()}
+                    className={cn(isBottomVisible ? 'visible' : 'hidden')}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className={styles.xyzCanvas} ref={canvasRef}></div>
-    </div>
+        <div className={styles.xyzCanvas} ref={canvasRef}></div>
+      </div>
+    </>
   );
 }
 

@@ -108,9 +108,10 @@ export default class ViewerClass {
       10000, // far 10000
     );
     this.camera = camera;
-    this.isMobile() ? this.camera.position.set(0, 2, 17) : this.camera.position.set(0, 2, 29);
+    console.log(fixedWidth);
     this.camera.lookAt(0, 0, 0);
     this.camera.updateProjectionMatrix();
+    camera.position.set(0, 2, 10);
 
     /************* light ***************/
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 3);
@@ -191,11 +192,10 @@ export default class ViewerClass {
   isAndroid() {
     return /Android/i.test(navigator.userAgent);
   }
-
   setupLight() {
-    this.pointLight.position.set(0, 20, 13);
+    this.pointLight.position.set(6, 20, 17);
     this.pointLight.castShadow = true; // default false
-    this.pointLight.shadow.radius = 6; // 그림자 반경
+    this.pointLight.shadow.radius = 2; // 그림자 반경
     this.pointLight.shadow.mapSize.width = 1024; // 2x 그림자 품질 조정
     this.pointLight.shadow.mapSize.height = 1024; // 2x
     this.pointLight.shadow.camera.near = 1; // default
@@ -206,6 +206,8 @@ export default class ViewerClass {
   setupModel(model: ViewerData) {
     const overlay = document.querySelector(`.${styles.temporal}`) as HTMLDivElement;
     const loadDiv = document.querySelector(`.${styles.xyzLoading}`) as HTMLDivElement;
+    const gui = document.querySelector(`.${styles.guiWrapper3d}`) as HTMLDivElement;
+    const guiSwipe3d = document.querySelector(`.${styles.guiSwipeEachBox}`) as HTMLDivElement;
     this.loader.load(
       model.objurl,
       (gltf) => {
@@ -213,9 +215,8 @@ export default class ViewerClass {
         const size = box.getSize(new THREE.Vector3());
         const scaleFactor = 6 / Math.max(size.x, size.y, size.z);
         gltf.scene.scale.set(scaleFactor, scaleFactor, scaleFactor);
-        gltf.scene.rotation.y = -1.7;
+        gltf.scene.rotation.y = -1.1;
         gltf.scene.position.set(0, -6, 0); //0, -3, 17
-        this.objGroup = gltf.scene; // 그룹 참조 저장 회전 등을 위해
         gltf.scene.name = model.nick;
         this.scene.add(gltf.scene);
 
@@ -237,6 +238,7 @@ export default class ViewerClass {
             this.imageMap = object.material.map; // 이미지 맵 복사
             this.baseMesh = object; // 메쉬 복사
             this.wireframe = wireframe; // 와이어프레임 복사
+            this.objGroup = gltf.scene; // 그룹 참조 저장 회전 등을 위해
           }
         });
       },
@@ -248,6 +250,9 @@ export default class ViewerClass {
             overlay.style.opacity = '0';
             overlay.style.display = 'none';
             loadDiv.style.display = 'none';
+            gui.style.opacity = '1';
+            guiSwipe3d.style.pointerEvents = 'auto';
+            guiSwipe3d.style.touchAction = 'auto';
           } else {
             this.nowLoading = 0;
             loadDiv.style.display = 'flex';
@@ -270,7 +275,7 @@ export default class ViewerClass {
     const controls = new OrbitControls(this.camera, this.renderer.domElement);
     controls.target.set(0, -3, 0); // 모델의 위치로 설정
     controls.minDistance = 3.5; // 객체에 가까워질 수 있는 최소 거리
-    controls.maxDistance = 8; // 객체에서 멀어질 수 있는 최대 거리
+    this.fixedWidth > 768 ? (controls.maxDistance = 9) : (controls.maxDistance = 29); // 객체에서 멀어질 수 있는 최대 거리
     controls.autoRotate = false;
     controls.update();
     this.controls = controls;
@@ -282,7 +287,7 @@ export default class ViewerClass {
     const glitchPass = new GlitchPass();
     this.glitchPass = glitchPass;
 
-    const renderPixelatedPass = new RenderPixelatedPass(15, this.scene, this.camera);
+    const renderPixelatedPass = new RenderPixelatedPass(5, this.scene, this.camera);
     this.pixelPass = renderPixelatedPass;
 
     const effect1 = new ShaderPass(DotScreenShader);
@@ -299,7 +304,6 @@ export default class ViewerClass {
         prefix + 'nz' + postfix,
       ];
     };
-
     const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
     const ldrUrls = genCubeUrls('/assets/whitecube2/', '.png');
     const envTexture = new THREE.CubeTextureLoader().load(
@@ -310,11 +314,9 @@ export default class ViewerClass {
         this.cubeMap = ldrCubeMap;
       },
     );
-
     const renderPass = new RenderPass(this.scene, this.camera);
     renderPass.clear = false;
     composer.addPass(renderPass);
-
     this.composer = composer;
   }
   removeLight() {
@@ -354,21 +356,21 @@ export default class ViewerClass {
   }
   next() {
     const nextData = this.selected + 1;
-    this.selected = nextData;
     if (nextData >= this.viewerData.length) return;
-    this.modelDispose(this.scene);
+    this.selected = nextData;
+    this.modelDispose();
     this.setupModel(this.viewerData[nextData]);
   }
   prev() {
     const prevData = this.selected - 1;
-    this.selected = prevData;
     if (prevData < 0) return;
-    this.modelDispose(this.scene);
+    this.selected = prevData;
+    this.modelDispose();
     this.setupModel(this.viewerData[prevData]);
   }
   selectedChange(num: number) {
     this.selected = num;
-    this.modelDispose(this.scene);
+    this.modelDispose();
     this.setupModel(this.viewerData[num]);
   }
   resize() {
@@ -384,7 +386,9 @@ export default class ViewerClass {
       this.camera.left = aspect * -1;
       this.camera.right = aspect * 1;
     }
-
+    if (this.controls) {
+      this.fixedWidth > 768 ? (this.controls.maxDistance = 9) : (this.controls.maxDistance = 29); // 객체에서 멀어질 수 있는 최대 거리
+    }
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
     this.composer?.setSize(width, height);
@@ -397,11 +401,15 @@ export default class ViewerClass {
   destroy() {
     this.running = false;
     this.renderer.dispose();
-    this.modelDispose(this.scene);
+    this.modelDispose();
   }
-  modelDispose(scene: THREE.Scene) {
-    this.objGroup?.removeFromParent();
-    scene.traverse((object) => {
+  modelDispose() {
+    console.log(this.objGroup);
+    if (this.objGroup) {
+      this.objGroup.removeFromParent();
+      this.scene.remove(this.objGroup);
+    }
+    this.scene.traverse((object) => {
       //Geometry 삭제
       if (object instanceof THREE.Mesh && object.geometry) {
         object.geometry.dispose();

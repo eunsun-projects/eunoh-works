@@ -58,18 +58,6 @@
   background: transparent;
   color: black;
 }
-.sonnyinfoA {
-  pointer-events: auto;
-  font-weight: bold;
-  font-size: 1rem;
-  line-height: 1.6rem;
-  background-color: black;
-  color: white;
-  position: relative;
-  display: block;
-  width: 3rem;
-  text-align: center;
-}
 .top3d a:focus {
   text-decoration: none;
   background-color: rgba(0, 0, 0, 0);
@@ -132,7 +120,17 @@
 .btmLeft3d {
   box-sizing: border-box;
   padding-left: 0.5rem;
+  display: flex;
+  flex-direction: row;
   width: 10%;
+  z-index: 10001;
+  -webkit-touch-callout: auto;
+  user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  -webkit-user-select: auto;
+  pointer-events: auto;
+  cursor: pointer;
 }
 .btmRight3d {
   box-sizing: border-box;
@@ -148,6 +146,7 @@
   -ms-user-select: auto;
   -webkit-user-select: auto;
   pointer-events: auto;
+  cursor: pointer;
 }
 .btmRightControl {
   height: 100%;
@@ -162,38 +161,50 @@
 .guiSwipe3d {
   box-sizing: border-box;
   position: relative;
-  width: fit-content;
+  width: 100dvw;
   min-width: 100dvw;
   height: 20vh;
   background: #f0f0f0;
   transition: height 0.15s linear 0.15s;
   pointer-events: auto;
-  overflow: auto;
+  z-index: 10001;
+  -webkit-touch-callout: auto;
+  user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  -webkit-user-select: auto;
+  pointer-events: auto;
 }
 .xyzhide {
   height: 0vh;
 }
-
 .guiSwipeEachBox {
   height: 100%;
-  position: relative;
-  overflow-x: scroll;
+  width: auto;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   margin: 0 1.5rem;
-  gap: 2vw;
+  overflow-x: scroll;
+  gap: 1vw;
 }
 .guiSwipeEach {
   box-sizing: border-box;
   margin: 0.5rem;
   width: 10rem;
+  min-width: 10rem;
   height: 90%;
   cursor: pointer;
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
+  -webkit-touch-callout: auto;
+  user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  -webkit-user-select: auto;
+  pointer-events: auto;
 }
 .guiDownArrow {
   display: none;
@@ -277,6 +288,7 @@
   justify-content: center;
   align-items: center;
   position: fixed;
+  z-index: 10000;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

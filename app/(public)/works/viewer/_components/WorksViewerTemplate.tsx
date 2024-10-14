@@ -1,8 +1,11 @@
 'use client';
 
+import Navigate from '@/components/ui/navigate/Navigate';
 import { useViewerQuery } from '@/hooks/queries/getViewer.hook';
 import { useTapScroll } from '@/hooks/useTabScroll';
+import cn from '@/utils/common/cn';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Md360,
@@ -30,6 +33,7 @@ const delay = 300; // 더블 탭으로 판단하기 위한 시간 간격(밀리�
 function WorksViewerTemplate() {
   const { data: viewerData, isPending, error } = useViewerQuery();
   const [selected, setSelected] = useState(0);
+  const [isBottomVisible, setIsBottomVisible] = useState(false);
 
   const imagesRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<ViewerClass | null>(null);
@@ -41,6 +45,8 @@ function WorksViewerTemplate() {
   const loadDivRef = useRef<HTMLDivElement>(null);
   const lastTapTime = useRef<number>(0);
   const idleTime = useRef<number>(0);
+
+  const router = useRouter();
 
   const { scrollHandlers } =
     useTapScroll({
@@ -79,13 +85,15 @@ function WorksViewerTemplate() {
       if (appRef.current) {
         if (e.target instanceof SVGElement) {
           const target = e.target;
-          const bottomUi = document.querySelector(styles.guiSwipe3d);
+          const bottomUi = document.querySelector(`.${styles.guiSwipe3d}`);
           switch (target.dataset.ui) {
             case 'expand_less':
+              setIsBottomVisible(true);
               bottomUi?.classList.remove(styles.xyzhide);
               scrollToSelected(selected);
               break;
             case 'expand_more':
+              setIsBottomVisible(false);
               bottomUi?.classList.add(styles.xyzhide);
               scrollToSelected(selected);
               break;
@@ -119,7 +127,6 @@ function WorksViewerTemplate() {
               appRef.current.toggleRotation(target);
               break;
             case 'wb_sunny':
-              console.log(target);
               toggle(target);
               break;
             case 'wb_iridescent':
@@ -220,11 +227,6 @@ function WorksViewerTemplate() {
   }, [selected, scrollToSelected]);
 
   useEffect(() => {
-    const idleTimeReset = () => {
-      idleTime.current = 0;
-      console.log('idleTime reset');
-    };
-
     if (canvasRef.current && overlayRef.current && loadDivRef.current && viewerData) {
       appRef.current = new ViewerClass(
         canvasRef.current,
@@ -242,17 +244,14 @@ function WorksViewerTemplate() {
       };
       animate();
     }
+  }, [viewerData]);
+
+  useEffect(() => {
+    const idleTimeReset = () => {
+      idleTime.current = 0;
+      console.log('idleTime reset');
+    };
     document.body.addEventListener('click', idleTimeReset);
-
-    intervalRef.current = setInterval(() => {
-      idleTime.current = idleTime.current + 1;
-      if (idleTime.current >= 3) {
-        // 3 minutes
-        console.log('reload!');
-        // router.push("/sonny");
-      }
-    }, 60000);
-
     document.documentElement.style.overscrollBehavior = 'none';
 
     return () => {
@@ -267,7 +266,18 @@ function WorksViewerTemplate() {
       window.onresize = null;
       appRef.current?.destroy();
     };
-  }, [viewerData]);
+  }, []);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      idleTime.current = idleTime.current + 1;
+      if (idleTime.current >= 3) {
+        // 3 minutes
+        console.log('reload!');
+        router.refresh();
+      }
+    }, 60000);
+  }, [router]);
 
   return (
     <div className={styles.guiMain3d} ref={guiMainRef}>
@@ -284,10 +294,16 @@ function WorksViewerTemplate() {
 
         <div className={styles.mid3d}>
           <div className={styles.midLeft3d}>
-            <MdNavigateBefore className="xyznavigate w-6 h-6 cursor-pointer" onClick={handlePrev} />
+            <MdNavigateBefore
+              className="xyznavigate w-6 h-6 cursor-pointer select-all pointer-events-auto"
+              onClick={handlePrev}
+            />
           </div>
           <div className={styles.midRight3d}>
-            <MdNavigateNext className="xyznavigate w-6 h-6 cursor-pointer" onClick={handleNext} />
+            <MdNavigateNext
+              className="xyznavigate w-6 h-6 cursor-pointer select-all pointer-events-auto"
+              onClick={handleNext}
+            />
           </div>
           <div className={styles.xyzLoading} ref={loadDivRef}></div>
         </div>
@@ -300,11 +316,23 @@ function WorksViewerTemplate() {
           <p>{viewerData?.[selected].material}</p>
         </div>
 
-        <div className={styles.btm3d} onClick={handleBottomLeftClick}>
-          <div className={styles.btmLeft3d}>
-            <MdExpandLess className="xyzright w-6 h-6 cursor-pointer" data-ui="expand_less" />
-            <MdExpandMore className="xyzright w-6 h-6 cursor-pointer" data-ui="expand_more" />
-            <MdQuestionMark className="xyzright w-6 h-6 cursor-pointer" data-ui="question_mark" />
+        <div className={styles.btm3d}>
+          <div className={styles.btmLeft3d} onClick={handleBottomLeftClick}>
+            <MdExpandLess
+              className={cn(
+                'xyzleft w-6 h-6 cursor-pointer',
+                isBottomVisible ? 'hidden' : 'visible',
+              )}
+              data-ui="expand_less"
+            />
+            <MdExpandMore
+              className={cn(
+                'xyzleft w-6 h-6 cursor-pointer',
+                isBottomVisible ? 'visible' : 'hidden',
+              )}
+              data-ui="expand_more"
+            />
+            <MdQuestionMark className="xyzleft w-6 h-6 cursor-pointer" data-ui="question_mark" />
           </div>
           <div className={styles.btmRight3d} onClick={handleBottomRightClick}>
             <Md360 className="xyzright w-6 h-6 cursor-pointer" data-ui="360" />
@@ -322,18 +350,32 @@ function WorksViewerTemplate() {
             <MdBlurOn className="xyzeffects w-6 h-6 cursor-pointer" data-ui="blur_on" />
           </div>
         </div>
-      </div>
 
-      <div className={`${styles.guiSwipe3d} ${styles.xyzhide}`}>
-        <div className={styles.guiSwipeEachBox} ref={imagesRef} onClick={handleThumbnailClick}>
-          {viewerData?.map((item, index) => (
-            <div
-              className={styles.guiSwipeEach}
-              key={item.id}
-              data-num={index}
-              style={{ backgroundImage: `url(${item.thumb})` }}
-            />
-          ))}
+        <div className={`${styles.guiSwipe3d} ${styles.xyzhide}`}>
+          <div className={styles.guiSwipeEachBox} ref={imagesRef} onClick={handleThumbnailClick}>
+            {viewerData?.map((item, index) => (
+              <div
+                className={styles.guiSwipeEach}
+                key={item.id}
+                data-num={index}
+                style={{ backgroundImage: `url(${item.thumb})` }}
+              />
+            ))}
+            {scrollHandlers?.createScrollLeft && scrollHandlers?.createScrollRight && (
+              <div className="absolute flex w-dvw h-full top-[50%]">
+                <Navigate
+                  mode="before"
+                  onClick={scrollHandlers.createScrollLeft()}
+                  className={cn(isBottomVisible ? 'visible' : 'hidden')}
+                />
+                <Navigate
+                  mode="after"
+                  onClick={scrollHandlers.createScrollRight()}
+                  className={cn(isBottomVisible ? 'visible' : 'hidden')}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

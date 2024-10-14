@@ -113,29 +113,29 @@ export default class ViewerClass {
     const camera = new THREE.PerspectiveCamera(
       85, // FOV
       this.fixedWidth / this.fixedHeight, // aspect ratio
-      0.5, // near
-      50, // far 10000
+      1, // near
+      10000, // far 10000
     );
     this.camera = camera;
-    this.isMobile() ? this.camera.position.set(0, 2, 17) : this.camera.position.set(0, 5, 27);
+    this.isMobile() ? this.camera.position.set(0, 2, 17) : this.camera.position.set(0, 3, 29);
     this.camera.lookAt(0, 0, 0);
     this.camera.updateProjectionMatrix();
 
     /************* light ***************/
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 10);
-    hemiLight.position.set(0, 20, -20);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 3);
+    hemiLight.position.set(0, 20, 0);
 
     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
     const sunLight = new THREE.DirectionalLight(colors.sun, 7);
     sunLight.position.set(0, 20, 0);
 
-    const iredLight = new THREE.DirectionalLight(colors.ired, 15);
+    const iredLight = new THREE.DirectionalLight(colors.ired, 1);
     iredLight.position.set(0, 20, 30);
 
-    const bulbLight = new THREE.DirectionalLight(colors.bulb, 15);
+    const bulbLight = new THREE.DirectionalLight(colors.bulb, 1);
     bulbLight.position.set(0, 20, 30);
 
-    const pinLight = new THREE.PointLight(colors.pin, 500);
+    const pinLight = new THREE.PointLight(colors.pin, 1);
     pinLight.position.set(0, 10, 0);
 
     this.pointLight = pointLight;
@@ -213,12 +213,14 @@ export default class ViewerClass {
     this.scene.add(this.pointLight);
   }
   setupModel(model: ViewerData) {
+    const overlay = document.querySelector(`.${styles.temporal}`) as HTMLDivElement;
+    const loadDiv = document.querySelector(`.${styles.xyzLoading}`) as HTMLDivElement;
     this.loader.load(
       model.objurl,
       (gltf) => {
         const box = new THREE.Box3().setFromObject(gltf.scene);
         const size = box.getSize(new THREE.Vector3());
-        const scaleFactor = 8 / Math.max(size.x, size.y, size.z);
+        const scaleFactor = 6 / Math.max(size.x, size.y, size.z);
         gltf.scene.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         gltf.scene.rotation.y = -1.7;
@@ -253,19 +255,19 @@ export default class ViewerClass {
         });
       },
       (xhr) => {
-        this.loadCounter = (xhr.loaded / xhr.total) * 100;
-        if (this.overlay && this.loadDiv) {
-          this.loadDiv.innerHTML = `Loading.. ${Math.round(this.loadCounter)}%`;
-          this.overlay.style.transition = `opacity ${this.loadCounter / 100}s ease-out ${
-            this.loadCounter / 100
-          }s`;
-          if (this.loadCounter === 100) {
+        const loadCounter = (xhr.loaded / xhr.total) * 100;
+        console.log(loadCounter);
+        if (overlay && loadDiv) {
+          if (loadCounter >= 100) {
             this.nowLoading = 1;
-            this.loadDiv.remove();
-            this.overlay.style.opacity = '0';
-            this.overlay.style.display = 'none';
-          } else if (this.loadCounter < 100) {
+            overlay.style.opacity = '0';
+            overlay.style.display = 'none';
+            loadDiv.style.display = 'none';
+          } else {
             this.nowLoading = 0;
+            loadDiv.style.display = 'flex';
+            loadDiv.innerHTML = `Loading.. ${Math.round(loadCounter)}%`;
+            overlay.style.transition = `opacity ${loadCounter / 100}s ease-out ${loadCounter / 100}s`;
           }
         }
       },
@@ -366,12 +368,18 @@ export default class ViewerClass {
     }
   }
   next() {
+    const nextData = this.selected + 1;
+    this.selected = nextData;
+    if (nextData >= this.viewerData.length) return;
     this.modelDispose(this.scene);
-    this.setupModel(this.viewerData[this.selected + 1]);
+    this.setupModel(this.viewerData[nextData]);
   }
   prev() {
+    const prevData = this.selected - 1;
+    this.selected = prevData;
+    if (prevData < 0) return;
     this.modelDispose(this.scene);
-    this.setupModel(this.viewerData[this.selected - 1]);
+    this.setupModel(this.viewerData[prevData]);
   }
   resize() {
     const width = window.innerWidth;
@@ -402,8 +410,9 @@ export default class ViewerClass {
     this.modelDispose(this.scene);
   }
   modelDispose(scene: THREE.Scene) {
+    this.objGroup?.removeFromParent();
     scene.traverse((object) => {
-      // Geometry 삭제
+      //Geometry 삭제
       if (object instanceof THREE.Mesh && object.geometry) {
         object.geometry.dispose();
         console.log('geo disposed!');

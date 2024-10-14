@@ -41,8 +41,6 @@ function WorksViewerTemplate() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const guiMainRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const loadDivRef = useRef<HTMLDivElement>(null);
   const lastTapTime = useRef<number>(0);
   const idleTime = useRef<number>(0);
 
@@ -227,13 +225,8 @@ function WorksViewerTemplate() {
   }, [selected, scrollToSelected]);
 
   useEffect(() => {
-    if (canvasRef.current && overlayRef.current && loadDivRef.current && viewerData) {
-      appRef.current = new ViewerClass(
-        canvasRef.current,
-        overlayRef.current,
-        loadDivRef.current,
-        viewerData,
-      );
+    if (canvasRef.current && viewerData) {
+      appRef.current = new ViewerClass(canvasRef.current, viewerData);
 
       window.onresize = appRef.current.resize.bind(appRef.current);
       appRef.current.resize();
@@ -281,7 +274,7 @@ function WorksViewerTemplate() {
 
   return (
     <div className={styles.guiMain3d} ref={guiMainRef}>
-      <div className={styles.temporal} ref={overlayRef}></div>
+      <div className={styles.temporal}></div>
       <div className={styles.xyzNoneLandscape}>
         <h3>Looks good in portrait mode!</h3>
       </div>
@@ -305,7 +298,7 @@ function WorksViewerTemplate() {
               onClick={handleNext}
             />
           </div>
-          <div className={styles.xyzLoading} ref={loadDivRef}></div>
+          <div className={styles.xyzLoading}></div>
         </div>
 
         <div className={styles.midInfo}>

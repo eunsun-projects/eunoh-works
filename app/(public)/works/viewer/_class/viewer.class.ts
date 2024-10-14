@@ -54,16 +54,9 @@ export default class ViewerClass {
   renderPass: RenderPass | null;
   controls: OrbitControls | null;
   canvas: HTMLDivElement | null;
-  overlay: HTMLDivElement | null;
-  loadDiv: HTMLDivElement | null;
   viewerData: ViewerData[];
   selected: number;
-  constructor(
-    canvasRef: HTMLDivElement,
-    overlayRef: HTMLDivElement,
-    loadDivRef: HTMLDivElement,
-    viewerData: ViewerData[],
-  ) {
+  constructor(canvasRef: HTMLDivElement, viewerData: ViewerData[]) {
     this.loadCounter = 0;
     this.nowLoading = 0;
     this.running = true; // 디스트로이 시 false 로 변경되는 상태 스테이트
@@ -83,8 +76,6 @@ export default class ViewerClass {
     this.controls = null;
     this.viewerData = viewerData;
     this.canvas = canvasRef;
-    this.overlay = overlayRef;
-    this.loadDiv = loadDivRef;
     this.selected = 0;
     const fixedWidth = window.innerWidth;
     const fixedHeight = window.innerHeight;
@@ -222,15 +213,10 @@ export default class ViewerClass {
         const size = box.getSize(new THREE.Vector3());
         const scaleFactor = 6 / Math.max(size.x, size.y, size.z);
         gltf.scene.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
         gltf.scene.rotation.y = -1.7;
-        // gltf.scene.position.y = -3;
         gltf.scene.position.set(0, -6, 0); //0, -3, 17
-
         this.objGroup = gltf.scene; // 그룹 참조 저장 회전 등을 위해
-
         gltf.scene.name = model.nick;
-
         this.scene.add(gltf.scene);
 
         gltf.scene.traverse((object) => {
@@ -256,7 +242,6 @@ export default class ViewerClass {
       },
       (xhr) => {
         const loadCounter = (xhr.loaded / xhr.total) * 100;
-        console.log(loadCounter);
         if (overlay && loadDiv) {
           if (loadCounter >= 100) {
             this.nowLoading = 1;
@@ -272,9 +257,9 @@ export default class ViewerClass {
         }
       },
       (error) => {
-        if (this.loadDiv) {
-          this.loadDiv.innerHTML = `error ocurred! restart page!`;
-          this.loadDiv.style.fontSize = '1rem';
+        if (loadDiv) {
+          loadDiv.innerHTML = `error ocurred! restart page!`;
+          loadDiv.style.fontSize = '1rem';
         }
         console.error(error);
       },

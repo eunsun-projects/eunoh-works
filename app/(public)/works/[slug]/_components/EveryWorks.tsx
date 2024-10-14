@@ -55,7 +55,7 @@ export default function EveryWorks({ year }: { year: string }) {
             <Link
               key={i}
               href={e.src}
-              target={i === 2 ? '_self' : '_blank'}
+              target={i === 2 || i === 1 ? '_self' : '_blank'}
               className={styles23.aa}
               prefetch={false}
             >

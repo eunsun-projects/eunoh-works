@@ -51,7 +51,7 @@ function WorksViewerTemplate() {
       ref: imagesRef,
     }) ?? {};
 
-  const toggle = useCallback((target: SVGElement) => {
+  const toggle = useCallback((target: HTMLElement | SVGElement) => {
     const rightIcon = document.querySelectorAll('.xyzright');
     if (target.classList.value.includes(styles.xyzon)) {
       rightIcon.forEach((el) => {
@@ -82,9 +82,9 @@ function WorksViewerTemplate() {
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (appRef.current) {
         if (e.target instanceof SVGElement) {
-          const target = e.target;
+          const target = e.target.tagName === 'path' ? e.target.parentElement : e.target;
           const bottomUi = document.querySelector(`.${styles.guiSwipe3d}`);
-          switch (target.dataset.ui) {
+          switch (target && target.dataset.ui) {
             case 'expand_less':
               setIsBottomVisible(true);
               bottomUi?.classList.remove(styles.xyzhide);
@@ -96,14 +96,14 @@ function WorksViewerTemplate() {
               scrollToSelected(selected);
               break;
             case 'question_mark':
-              const midInfo = document.querySelector(styles.midInfo);
-              const mid3d = document.querySelector(styles.mid3d);
-              if (target.classList.value.includes(styles.xyzon)) {
+              const midInfo = document.querySelector(`.${styles.midInfo}`);
+              const mid3d = document.querySelector(`.${styles.mid3d}`);
+              if (target && target.classList.value.includes(styles.xyzon)) {
                 target.classList.remove(styles.xyzon);
                 midInfo?.classList.remove(styles.active);
                 mid3d?.classList.remove(styles.midChange);
               } else {
-                target.classList.add(styles.xyzon);
+                target?.classList.add(styles.xyzon);
                 midInfo?.classList.add(styles.active);
                 mid3d?.classList.add(styles.midChange);
               }
@@ -119,38 +119,40 @@ function WorksViewerTemplate() {
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (appRef.current) {
         if (e.target instanceof SVGElement) {
-          const target = e.target;
-          switch (target.dataset.ui) {
-            case '360':
-              appRef.current.toggleRotation(target);
-              break;
-            case 'wb_sunny':
-              toggle(target);
-              break;
-            case 'wb_iridescent':
-              toggle(target);
-              break;
-            case 'lightbulb':
-              toggle(target);
-              break;
-            case 'highlight':
-              toggle(target);
-              break;
-            case 'grid_on':
-              appRef.current?.toggleWireframe(target);
-              break;
-            case 'contrast':
-              appRef.current?.toggleMap(target);
-              break;
-            case 'grid_view':
-              appRef.current?.togglePixelate(target);
-              break;
-            case 'graphic_eq':
-              appRef.current?.toggleGlitch(target);
-              break;
-            case 'blur_on':
-              appRef.current?.toggleDotScreen(target);
-              break;
+          const target = e.target.tagName === 'path' ? e.target.parentElement : e.target;
+          if (target && target.dataset.ui) {
+            switch (target.dataset.ui) {
+              case '360':
+                appRef.current.toggleRotation(target);
+                break;
+              case 'wb_sunny':
+                toggle(target);
+                break;
+              case 'wb_iridescent':
+                toggle(target);
+                break;
+              case 'lightbulb':
+                toggle(target);
+                break;
+              case 'highlight':
+                toggle(target);
+                break;
+              case 'grid_on':
+                appRef.current?.toggleWireframe(target);
+                break;
+              case 'contrast':
+                appRef.current?.toggleMap(target);
+                break;
+              case 'grid_view':
+                appRef.current?.togglePixelate(target);
+                break;
+              case 'graphic_eq':
+                appRef.current?.toggleGlitch(target);
+                break;
+              case 'blur_on':
+                appRef.current?.toggleDotScreen(target);
+                break;
+            }
           }
         }
       } else {
@@ -221,7 +223,10 @@ function WorksViewerTemplate() {
   }, [error]);
 
   useEffect(() => {
-    scrollToSelected(selected);
+    if (appRef.current) {
+      appRef.current.selectedChange(selected);
+      scrollToSelected(selected);
+    }
   }, [selected, scrollToSelected]);
 
   useEffect(() => {

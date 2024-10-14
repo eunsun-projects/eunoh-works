@@ -108,7 +108,7 @@ export default class ViewerClass {
       10000, // far 10000
     );
     this.camera = camera;
-    this.isMobile() ? this.camera.position.set(0, 2, 17) : this.camera.position.set(0, 3, 29);
+    this.isMobile() ? this.camera.position.set(0, 2, 17) : this.camera.position.set(0, 2, 29);
     this.camera.lookAt(0, 0, 0);
     this.camera.updateProjectionMatrix();
 
@@ -120,14 +120,14 @@ export default class ViewerClass {
     const sunLight = new THREE.DirectionalLight(colors.sun, 7);
     sunLight.position.set(0, 20, 0);
 
-    const iredLight = new THREE.DirectionalLight(colors.ired, 1);
+    const iredLight = new THREE.DirectionalLight(colors.ired, 7);
     iredLight.position.set(0, 20, 30);
 
-    const bulbLight = new THREE.DirectionalLight(colors.bulb, 1);
+    const bulbLight = new THREE.DirectionalLight(colors.bulb, 12);
     bulbLight.position.set(0, 20, 30);
 
-    const pinLight = new THREE.PointLight(colors.pin, 1);
-    pinLight.position.set(0, 10, 0);
+    const pinLight = new THREE.PointLight(colors.pin, 500, 0);
+    pinLight.position.set(0, 2, 10);
 
     this.pointLight = pointLight;
     this.hemiLight = hemiLight;
@@ -366,6 +366,11 @@ export default class ViewerClass {
     this.modelDispose(this.scene);
     this.setupModel(this.viewerData[prevData]);
   }
+  selectedChange(num: number) {
+    this.selected = num;
+    this.modelDispose(this.scene);
+    this.setupModel(this.viewerData[num]);
+  }
   resize() {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -386,7 +391,7 @@ export default class ViewerClass {
   }
   render() {
     if (!this.running) return;
-    if (this.rotateObject && this.objGroup) this.objGroup.rotation.y += -0.01;
+    if (this.rotateObject && this.objGroup) this.objGroup.rotation.y += -0.001;
     this.composer?.render();
   }
   destroy() {
@@ -429,7 +434,7 @@ export default class ViewerClass {
     // Material 자체 삭제
     material.dispose();
   }
-  toggleRotation(target: SVGElement) {
+  toggleRotation(target: HTMLElement | SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       target.classList.remove(styles.xyzon);
       this.rotateObject = false;
@@ -450,7 +455,7 @@ export default class ViewerClass {
       e.classList.remove(styles.xyzon);
     });
   }
-  toggleWireframe(target: SVGElement) {
+  toggleWireframe(target: HTMLElement | SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonViewRemove();
       if (this.wireframe) this.wireframe.visible = false;
@@ -464,7 +469,7 @@ export default class ViewerClass {
       if (this.scene) this.scene.background = new THREE.Color(0xc7c7c7);
     }
   }
-  toggleMap(target: SVGElement) {
+  toggleMap(target: HTMLElement | SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonViewRemove();
       if (this.baseMesh)
@@ -477,7 +482,7 @@ export default class ViewerClass {
       if (this.scene) this.scene.background = new THREE.Color(0xc7c7c7);
     }
   }
-  toggleReflection(target: SVGElement) {
+  toggleReflection(target: HTMLElement | SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonViewRemove();
       if (this.baseMesh)
@@ -492,7 +497,7 @@ export default class ViewerClass {
       if (this.scene) this.scene.background = this.cubeMap; // 배경 적용!
     }
   }
-  togglePixelate(target: SVGElement) {
+  togglePixelate(target: HTMLElement | SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonEffectsRemove();
       if (this.composer) {
@@ -501,7 +506,7 @@ export default class ViewerClass {
           this.composer.removePass(pass);
         }
       }
-      if (this.pointLight) this.pointLight.intensity = 1;
+      if (this.hemiLight) this.hemiLight.intensity = 3;
     } else {
       this.xyzonEffectsRemove();
       target.classList.add(styles.xyzon);
@@ -512,10 +517,10 @@ export default class ViewerClass {
         }
         this.composer.addPass(this.pixelPass);
       }
-      if (this.pointLight) this.pointLight.intensity = 5;
+      if (this.hemiLight) this.hemiLight.intensity = 10;
     }
   }
-  toggleGlitch(target: SVGElement) {
+  toggleGlitch(target: HTMLElement | SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonEffectsRemove();
       if (this.composer) {
@@ -524,7 +529,7 @@ export default class ViewerClass {
           this.composer.removePass(pass);
         }
       }
-      if (this.pointLight) this.pointLight.intensity = 1;
+      if (this.hemiLight) this.hemiLight.intensity = 3;
     } else {
       this.xyzonEffectsRemove();
       target.classList.add(styles.xyzon);
@@ -535,10 +540,10 @@ export default class ViewerClass {
         }
         this.composer.addPass(this.glitchPass);
       }
-      if (this.pointLight) this.pointLight.intensity = 5;
+      if (this.hemiLight) this.hemiLight.intensity = 10;
     }
   }
-  toggleDotScreen(target: SVGElement) {
+  toggleDotScreen(target: HTMLElement | SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonEffectsRemove();
       if (this.composer) {
@@ -547,7 +552,7 @@ export default class ViewerClass {
           this.composer.removePass(pass);
         }
       }
-      if (this.pointLight) this.pointLight.intensity = 1;
+      if (this.hemiLight) this.hemiLight.intensity = 3;
     } else {
       this.xyzonEffectsRemove();
       target.classList.add(styles.xyzon);
@@ -558,7 +563,7 @@ export default class ViewerClass {
         }
         this.composer.addPass(this.dotScreenPass);
       }
-      if (this.pointLight) this.pointLight.intensity = 1;
+      if (this.hemiLight) this.hemiLight.intensity = 3;
     }
   }
 }

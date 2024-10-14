@@ -435,7 +435,7 @@ export default class ViewerClass {
     // Material 자체 삭제
     material.dispose();
   }
-  toggleRotation(target: HTMLElement) {
+  toggleRotation(target: SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       target.classList.remove(styles.xyzon);
       this.rotateObject = false;
@@ -456,7 +456,7 @@ export default class ViewerClass {
       e.classList.remove(styles.xyzon);
     });
   }
-  toggleWireframe(target: HTMLElement) {
+  toggleWireframe(target: SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonViewRemove();
       if (this.wireframe) this.wireframe.visible = false;
@@ -470,7 +470,7 @@ export default class ViewerClass {
       if (this.scene) this.scene.background = new THREE.Color(0xc7c7c7);
     }
   }
-  toggleMap(target: HTMLElement) {
+  toggleMap(target: SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonViewRemove();
       if (this.baseMesh)
@@ -483,7 +483,7 @@ export default class ViewerClass {
       if (this.scene) this.scene.background = new THREE.Color(0xc7c7c7);
     }
   }
-  toggleReflection(target: HTMLElement) {
+  toggleReflection(target: SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonViewRemove();
       if (this.baseMesh)
@@ -498,7 +498,7 @@ export default class ViewerClass {
       if (this.scene) this.scene.background = this.cubeMap; // 배경 적용!
     }
   }
-  togglePixelate(target: HTMLElement) {
+  togglePixelate(target: SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonEffectsRemove();
       if (this.composer) {
@@ -521,7 +521,7 @@ export default class ViewerClass {
       if (this.pointLight) this.pointLight.intensity = 5;
     }
   }
-  toggleGlitch(target: HTMLElement) {
+  toggleGlitch(target: SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonEffectsRemove();
       if (this.composer) {
@@ -544,7 +544,7 @@ export default class ViewerClass {
       if (this.pointLight) this.pointLight.intensity = 5;
     }
   }
-  toggleDotScreen(target: HTMLElement) {
+  toggleDotScreen(target: SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {
       this.xyzonEffectsRemove();
       if (this.composer) {

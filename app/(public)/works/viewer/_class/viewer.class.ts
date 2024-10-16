@@ -56,7 +56,7 @@ export default class ViewerClass {
   canvas: HTMLDivElement | null;
   viewerData: ViewerData[];
   selected: number;
-  constructor(canvasRef: HTMLDivElement, viewerData: ViewerData[]) {
+  constructor(canvasRef: HTMLDivElement, viewerData: ViewerData[], selected: number) {
     this.loadCounter = 0;
     this.nowLoading = 0;
     this.running = true; // 디스트로이 시 false 로 변경되는 상태 스테이트
@@ -76,7 +76,7 @@ export default class ViewerClass {
     this.controls = null;
     this.viewerData = viewerData;
     this.canvas = canvasRef;
-    this.selected = 0;
+    this.selected = selected;
     const fixedWidth = window.innerWidth;
     const fixedHeight = window.innerHeight;
     this.fixedWidth = fixedWidth;
@@ -108,7 +108,6 @@ export default class ViewerClass {
       10000, // far 10000
     );
     this.camera = camera;
-    console.log(fixedWidth);
     this.camera.lookAt(0, 0, 0);
     this.camera.updateProjectionMatrix();
     camera.position.set(0, 2, 10);
@@ -179,7 +178,7 @@ export default class ViewerClass {
     this.loader = loader;
 
     /************ init App **************/
-    this.setupModel(this.viewerData[0]);
+    this.setupModel(viewerData[selected]);
     this.setupLight();
     this.setupControls();
     this.setupEffects();
@@ -404,7 +403,6 @@ export default class ViewerClass {
     this.modelDispose();
   }
   modelDispose() {
-    console.log(this.objGroup);
     if (this.objGroup) {
       this.objGroup.removeFromParent();
       this.scene.remove(this.objGroup);

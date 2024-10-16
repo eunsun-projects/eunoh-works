@@ -247,8 +247,7 @@
   transition: all 0.5s;
 }
 .xyzCopied {
-  background-color: rgb(255, 255, 255);
-  color: #88fd93;
+  color: #ff6666;
   font-size: 2rem;
   font-weight: 700;
   display: block;
@@ -256,6 +255,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  z-index: 20000;
 }
 
 @media screen and (max-width: 575px) and (orientation: portrait) {

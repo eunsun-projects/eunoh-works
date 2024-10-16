@@ -5,7 +5,7 @@ import { useViewerQuery } from '@/hooks/queries/getViewer.hook';
 import { useTapScroll } from '@/hooks/useTabScroll';
 import cn from '@/utils/common/cn';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Md360,
@@ -24,6 +24,7 @@ import {
   MdOutlineWbIridescent,
   MdOutlineWbSunny,
   MdQuestionMark,
+  MdShare,
 } from 'react-icons/md';
 import ViewerClass from '../_class/viewer.class';
 import styles from '../viewer.module.css';
@@ -45,7 +46,20 @@ function WorksViewerTemplate() {
   const idleTime = useRef<number>(0);
   const temporalRef = useRef<HTMLDivElement>(null);
   const guiWrapperRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true); // 첫 렌더링 여부 추적
+
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams],
+  );
 
   const { scrollHandlers } =
     useTapScroll({
@@ -209,16 +223,36 @@ function WorksViewerTemplate() {
     if (appRef.current && viewerData && selected < viewerData.length - 1) {
       appRef.current?.next();
       setSelected((prev) => prev + 1);
+      router.push(pathname + '?' + createQueryString('number', (selected + 1).toString()));
     }
-  }, [appRef, setSelected, viewerData, selected, preventTouch]);
+  }, [
+    appRef,
+    setSelected,
+    viewerData,
+    selected,
+    preventTouch,
+    router,
+    pathname,
+    createQueryString,
+  ]);
 
   const handlePrev = useCallback(() => {
     preventTouch();
     if (appRef.current && viewerData && selected > 0) {
       appRef.current?.prev();
       setSelected((prev) => prev - 1);
+      router.push(pathname + '?' + createQueryString('number', (selected - 1).toString()));
     }
-  }, [appRef, setSelected, viewerData, selected, preventTouch]);
+  }, [
+    appRef,
+    setSelected,
+    viewerData,
+    selected,
+    preventTouch,
+    router,
+    pathname,
+    createQueryString,
+  ]);
 
   const handleThumbnailClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -232,33 +266,64 @@ function WorksViewerTemplate() {
             setSelected(parseInt(num));
             appRef.current.selectedChange(parseInt(num));
             scrollToSelected(parseInt(num));
+            router.push(pathname + '?' + createQueryString('number', num));
           }
         }
       }
     },
-    [appRef, setSelected, scrollToSelected, selected, preventTouch],
+    [
+      appRef,
+      setSelected,
+      scrollToSelected,
+      selected,
+      preventTouch,
+      router,
+      pathname,
+      createQueryString,
+    ],
   );
+
+  const handleShare = useCallback(() => {
+    if (window.innerWidth > 575) {
+      window.navigator.clipboard.writeText(window.location.href);
+    } else if (window.innerWidth <= 575) {
+      /** ==== when mobile auto open share api ==== */
+      if (navigator.share) {
+        navigator
+          .share({
+            title: 'works-viewer',
+            text: "EunOh's works-viewer",
+            url: window.location.href,
+          })
+          .then(() => {
+            console.log('Thanks for sharing!');
+          })
+          .catch(console.error);
+      } else {
+        /** ==== when desktop write Url to clipbaord ==== */
+        window.navigator.clipboard.writeText(window.location.href);
+      }
+    }
+    let copied = document.createElement('div');
+    copied.setAttribute('class', styles.xyzCopied);
+    copied.innerText = 'URL Copied!';
+    guiMainRef.current?.insertAdjacentElement('afterbegin', copied);
+
+    let timer = setTimeout(() => {
+      copied.remove();
+      clearTimeout(timer);
+    }, 700);
+  }, []);
+
+  const handleClear = useCallback(() => {
+    appRef.current?.destroy();
+  }, []);
 
   useEffect(() => {
     if (error) {
       console.error(error);
     }
   }, [error]);
-
-  useEffect(() => {
-    if (canvasRef.current && viewerData) {
-      appRef.current = new ViewerClass(canvasRef.current, viewerData);
-
-      window.onresize = appRef.current.resize.bind(appRef.current);
-      appRef.current.resize();
-
-      const animate = () => {
-        appRef.current?.render(); // 실제 렌더링 함수
-        rafRef.current = requestAnimationFrame(animate);
-      };
-      animate();
-    }
-  }, [viewerData]);
 
   useEffect(() => {
     const idleTimeReset = () => {
@@ -278,9 +343,33 @@ function WorksViewerTemplate() {
         cancelAnimationFrame(rafRef.current);
       }
       window.onresize = null;
-      appRef.current?.destroy();
     };
   }, []);
+
+  useEffect(() => {
+    const number = searchParams.get('number');
+    if (canvasRef.current && viewerData && isFirstRender.current) {
+      if (number && Number(number) >= 0) {
+        setSelected(parseInt(number));
+      }
+      router.push(pathname + '?' + createQueryString('number', number ?? '0'));
+      appRef.current = new ViewerClass(canvasRef.current, viewerData, parseInt(number ?? '0'));
+    }
+
+    if (appRef.current) {
+      window.onresize = appRef.current.resize.bind(appRef.current);
+      appRef.current.resize();
+
+      const animate = () => {
+        appRef.current?.render(); // 실제 렌더링 함수
+        rafRef.current = requestAnimationFrame(animate);
+      };
+      animate();
+      isFirstRender.current = false;
+    }
+    // 린트 경고 무시: 검색 파라미터가 업데이트되더라도 첫 렌더링 이후에는 동작하지 않도록
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewerData, searchParams]);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -295,7 +384,9 @@ function WorksViewerTemplate() {
 
   return (
     <>
-      <div className={styles.temporal} ref={temporalRef} />
+      <div>
+        <div className={styles.temporal} ref={temporalRef} />
+      </div>
 
       <div className={styles.guiMain3d} ref={guiMainRef}>
         <div className={styles.xyzNoneLandscape}>
@@ -308,8 +399,17 @@ function WorksViewerTemplate() {
           ref={guiWrapperRef}
         >
           <div className={styles.top3d}>
+            <div className="h-6 flex items-center">
+              <MdShare
+                className="xyzright w-5 h-5 cursor-pointer select-all pointer-events-auto"
+                onClick={handleShare}
+              />
+            </div>
             <Link href="/works/2023">
-              <MdClear className="xyzright w-6 h-6 cursor-pointer select-all pointer-events-auto" />
+              <MdClear
+                className="xyzright w-6 h-6 cursor-pointer select-all pointer-events-auto"
+                onClick={handleClear}
+              />
             </Link>
           </div>
 

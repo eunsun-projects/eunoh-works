@@ -69,14 +69,14 @@ function WorksViewerTemplate() {
   const toggle = useCallback((target: HTMLElement | SVGElement) => {
     const rightIcon = document.querySelectorAll('.xyzright');
     if (target.classList.value.includes(styles.xyzon)) {
-      rightIcon.forEach((el) => {
+      for (const el of Array.from(rightIcon)) {
         el.classList.remove(styles.xyzon);
-      });
+      }
       appRef.current?.removeLight();
     } else {
-      rightIcon.forEach((el) => {
+      for (const el of Array.from(rightIcon)) {
         el.classList.remove(styles.xyzon);
-      });
+      }
       target.classList.add(styles.xyzon);
       if (target.dataset.ui) appRef.current?.lightModeChange(target.dataset.ui);
     }
@@ -99,7 +99,7 @@ function WorksViewerTemplate() {
         if (e.target instanceof SVGElement) {
           const target = e.target.tagName === 'path' ? e.target.parentElement : e.target;
           const bottomUi = document.querySelector(`.${styles.guiSwipe3d}`);
-          switch (target && target.dataset.ui) {
+          switch (target?.dataset.ui) {
             case 'expand_less':
               setIsBottomVisible(true);
               bottomUi?.classList.remove(styles.xyzhide);
@@ -111,13 +111,15 @@ function WorksViewerTemplate() {
               scrollToSelected(selected);
               break;
             case 'question_mark':
-              const midInfo = document.querySelector(`.${styles.midInfo}`);
-              const mid3d = document.querySelector(`.${styles.mid3d}`);
-              if (target && target.classList.value.includes(styles.xyzon)) {
+              if (target?.classList.value.includes(styles.xyzon)) {
+                const midInfo = document.querySelector(`.${styles.midInfo}`);
+                const mid3d = document.querySelector(`.${styles.mid3d}`);
                 target.classList.remove(styles.xyzon);
                 midInfo?.classList.remove(styles.active);
                 mid3d?.classList.remove(styles.midChange);
               } else {
+                const midInfo = document.querySelector(`.${styles.midInfo}`);
+                const mid3d = document.querySelector(`.${styles.mid3d}`);
                 target?.classList.add(styles.xyzon);
                 midInfo?.classList.add(styles.active);
                 mid3d?.classList.add(styles.midChange);
@@ -135,8 +137,8 @@ function WorksViewerTemplate() {
       if (appRef.current) {
         if (e.target instanceof SVGElement) {
           const target = e.target.tagName === 'path' ? e.target.parentElement : e.target;
-          if (target && target.dataset.ui) {
-            switch (target.dataset.ui) {
+          if (target?.dataset.ui) {
+            switch (target?.dataset.ui) {
               case '360':
                 appRef.current.toggleRotation(target);
                 break;
@@ -175,36 +177,30 @@ function WorksViewerTemplate() {
         return;
       }
     },
-    [appRef, toggle],
+    [toggle],
   );
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (appRef.current !== undefined && appRef.current !== null) {
-        if (appRef.current.nowLoading === 0 || e.detail === 2) {
-          alert('좀 천천히하셈');
-        }
-      }
-    },
-    [appRef],
-  );
-
-  const handleTouchEnd = useCallback(
-    (e: React.TouchEvent<HTMLDivElement>) => {
-      let currentTime = new Date().getTime();
-      let timeDifference = currentTime - lastTapTime.current;
-
-      if (timeDifference < delay && timeDifference > 0) {
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (appRef.current !== undefined && appRef.current !== null) {
+      if (appRef.current.nowLoading === 0 || e.detail === 2) {
         alert('좀 천천히하셈');
-      } else {
-        if (appRef.current?.nowLoading === 0) {
-          alert('좀 천천히하셈');
-        }
       }
-      lastTapTime.current = currentTime; // 마지막 탭 시간을 현재 시간으로 업데이트
-    },
-    [appRef],
-  );
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    const currentTime = new Date().getTime();
+    const timeDifference = currentTime - lastTapTime.current;
+
+    if (timeDifference < delay && timeDifference > 0) {
+      alert('좀 천천히하셈');
+    } else {
+      if (appRef.current?.nowLoading === 0) {
+        alert('좀 천천히하셈');
+      }
+    }
+    lastTapTime.current = currentTime; // 마지막 탭 시간을 현재 시간으로 업데이트
+  }, []);
 
   const preventTouch = useCallback(() => {
     if (temporalRef.current && guiWrapperRef.current && imagesRef.current) {
@@ -223,36 +219,18 @@ function WorksViewerTemplate() {
     if (appRef.current && viewerData && selected < viewerData.length - 1) {
       appRef.current?.next();
       setSelected((prev) => prev + 1);
-      router.push(pathname + '?' + createQueryString('number', (selected + 1).toString()));
+      router.push(`${pathname}?${createQueryString('number', (selected + 1).toString())}`);
     }
-  }, [
-    appRef,
-    setSelected,
-    viewerData,
-    selected,
-    preventTouch,
-    router,
-    pathname,
-    createQueryString,
-  ]);
+  }, [viewerData, selected, preventTouch, router, pathname, createQueryString]);
 
   const handlePrev = useCallback(() => {
     preventTouch();
     if (appRef.current && viewerData && selected > 0) {
       appRef.current?.prev();
       setSelected((prev) => prev - 1);
-      router.push(pathname + '?' + createQueryString('number', (selected - 1).toString()));
+      router.push(`${pathname}?${createQueryString('number', (selected - 1).toString())}`);
     }
-  }, [
-    appRef,
-    setSelected,
-    viewerData,
-    selected,
-    preventTouch,
-    router,
-    pathname,
-    createQueryString,
-  ]);
+  }, [viewerData, selected, preventTouch, router, pathname, createQueryString]);
 
   const handleThumbnailClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -261,26 +239,17 @@ function WorksViewerTemplate() {
           const target = e.target;
           const num = target.dataset.num;
           if (num) {
-            if (parseInt(num) === selected) return;
+            if (Number.parseInt(num) === selected) return;
             preventTouch();
-            setSelected(parseInt(num));
-            appRef.current.selectedChange(parseInt(num));
-            scrollToSelected(parseInt(num));
-            router.push(pathname + '?' + createQueryString('number', num));
+            setSelected(Number.parseInt(num));
+            appRef.current.selectedChange(Number.parseInt(num));
+            scrollToSelected(Number.parseInt(num));
+            router.push(`${pathname}?${createQueryString('number', num)}`);
           }
         }
       }
     },
-    [
-      appRef,
-      setSelected,
-      scrollToSelected,
-      selected,
-      preventTouch,
-      router,
-      pathname,
-      createQueryString,
-    ],
+    [scrollToSelected, selected, preventTouch, router, pathname, createQueryString],
   );
 
   const handleShare = useCallback(() => {
@@ -304,12 +273,12 @@ function WorksViewerTemplate() {
         window.navigator.clipboard.writeText(window.location.href);
       }
     }
-    let copied = document.createElement('div');
+    const copied = document.createElement('div');
     copied.setAttribute('class', styles.xyzCopied);
     copied.innerText = 'URL Copied!';
     guiMainRef.current?.insertAdjacentElement('afterbegin', copied);
 
-    let timer = setTimeout(() => {
+    const timer = setTimeout(() => {
       copied.remove();
       clearTimeout(timer);
     }, 700);
@@ -350,10 +319,14 @@ function WorksViewerTemplate() {
     const number = searchParams.get('number');
     if (canvasRef.current && viewerData && isFirstRender.current) {
       if (number && Number(number) >= 0) {
-        setSelected(parseInt(number));
+        setSelected(Number.parseInt(number));
       }
-      router.push(pathname + '?' + createQueryString('number', number ?? '0'));
-      appRef.current = new ViewerClass(canvasRef.current, viewerData, parseInt(number ?? '0'));
+      router.push(`${pathname}?${createQueryString('number', number ?? '0')}`);
+      appRef.current = new ViewerClass(
+        canvasRef.current,
+        viewerData,
+        Number.parseInt(number ?? '0'),
+      );
     }
 
     if (appRef.current) {
@@ -369,7 +342,7 @@ function WorksViewerTemplate() {
     }
     // 린트 경고 무시: 검색 파라미터가 업데이트되더라도 첫 렌더링 이후에는 동작하지 않도록
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewerData, searchParams]);
+  }, [viewerData, searchParams, createQueryString, pathname, router]);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -392,6 +365,7 @@ function WorksViewerTemplate() {
         <div className={styles.xyzNoneLandscape}>
           <h3>Looks good in portrait mode!</h3>
         </div>
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
         <div
           className={styles.guiWrapper3d}
           onClick={handleMouseDown}
@@ -426,7 +400,7 @@ function WorksViewerTemplate() {
                 onClick={handleNext}
               />
             </div>
-            <div className={styles.xyzLoading}></div>
+            <div className={styles.xyzLoading} />
           </div>
 
           <div className={styles.midInfo}>
@@ -438,6 +412,7 @@ function WorksViewerTemplate() {
           </div>
 
           <div className={styles.btm3d}>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
             <div className={styles.btmLeft3d} onClick={handleBottomLeftClick}>
               <MdExpandLess
                 className={cn(
@@ -455,6 +430,7 @@ function WorksViewerTemplate() {
               />
               <MdQuestionMark className="xyzleft w-6 h-6 cursor-pointer" data-ui="question_mark" />
             </div>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
             <div className={styles.btmRight3d} onClick={handleBottomRightClick}>
               <Md360 className="xyzright w-6 h-6 cursor-pointer" data-ui="360" />
               <MdOutlineWbSunny className="xyzright w-6 h-6 cursor-pointer" data-ui="wb_sunny" />
@@ -473,6 +449,7 @@ function WorksViewerTemplate() {
           </div>
 
           <div className={`${styles.guiSwipe3d} ${styles.xyzhide}`}>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
             <div className={styles.guiSwipeEachBox} ref={imagesRef} onClick={handleThumbnailClick}>
               {viewerData?.map((item, index) => (
                 <div
@@ -500,7 +477,7 @@ function WorksViewerTemplate() {
           </div>
         </div>
 
-        <div className={styles.xyzCanvas} ref={canvasRef}></div>
+        <div className={styles.xyzCanvas} ref={canvasRef} />
       </div>
     </>
   );

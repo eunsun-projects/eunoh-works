@@ -37,7 +37,7 @@ function WorksViewerTemplate() {
   const [isBottomVisible, setIsBottomVisible] = useState(false);
 
   const imagesRef = useRef<HTMLDivElement>(null);
-  const appRef = useRef<ViewerClass | null>(null);
+  const viewerAppRef = useRef<ViewerClass | null>(null);
   const rafRef = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const guiMainRef = useRef<HTMLDivElement>(null);
@@ -72,13 +72,13 @@ function WorksViewerTemplate() {
       for (const el of Array.from(rightIcon)) {
         el.classList.remove(styles.xyzon);
       }
-      appRef.current?.removeLight();
+      viewerAppRef.current?.removeLight();
     } else {
       for (const el of Array.from(rightIcon)) {
         el.classList.remove(styles.xyzon);
       }
       target.classList.add(styles.xyzon);
-      if (target.dataset.ui) appRef.current?.lightModeChange(target.dataset.ui);
+      if (target.dataset.ui) viewerAppRef.current?.lightModeChange(target.dataset.ui);
     }
   }, []);
 
@@ -95,7 +95,7 @@ function WorksViewerTemplate() {
 
   const handleBottomLeftClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (appRef.current) {
+      if (viewerAppRef.current) {
         if (e.target instanceof SVGElement) {
           const target = e.target.tagName === 'path' ? e.target.parentElement : e.target;
           const bottomUi = document.querySelector(`.${styles.guiSwipe3d}`);
@@ -134,13 +134,13 @@ function WorksViewerTemplate() {
 
   const handleBottomRightClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (appRef.current) {
+      if (viewerAppRef.current) {
         if (e.target instanceof SVGElement) {
           const target = e.target.tagName === 'path' ? e.target.parentElement : e.target;
           if (target?.dataset.ui) {
             switch (target?.dataset.ui) {
               case '360':
-                appRef.current.toggleRotation(target);
+                viewerAppRef.current.toggleRotation(target);
                 break;
               case 'wb_sunny':
                 toggle(target);
@@ -155,19 +155,19 @@ function WorksViewerTemplate() {
                 toggle(target);
                 break;
               case 'grid_on':
-                appRef.current?.toggleWireframe(target);
+                viewerAppRef.current?.toggleWireframe(target);
                 break;
               case 'contrast':
-                appRef.current?.toggleMap(target);
+                viewerAppRef.current?.toggleMap(target);
                 break;
               case 'grid_view':
-                appRef.current?.togglePixelate(target);
+                viewerAppRef.current?.togglePixelate(target);
                 break;
               case 'graphic_eq':
-                appRef.current?.toggleGlitch(target);
+                viewerAppRef.current?.toggleGlitch(target);
                 break;
               case 'blur_on':
-                appRef.current?.toggleDotScreen(target);
+                viewerAppRef.current?.toggleDotScreen(target);
                 break;
             }
           }
@@ -181,8 +181,8 @@ function WorksViewerTemplate() {
   );
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (appRef.current !== undefined && appRef.current !== null) {
-      if (appRef.current.nowLoading === 0 || e.detail === 2) {
+    if (viewerAppRef.current !== undefined && viewerAppRef.current !== null) {
+      if (viewerAppRef.current.nowLoading === 0 || e.detail === 2) {
         alert('좀 천천히하셈');
       }
     }
@@ -195,7 +195,7 @@ function WorksViewerTemplate() {
     if (timeDifference < delay && timeDifference > 0) {
       alert('좀 천천히하셈');
     } else {
-      if (appRef.current?.nowLoading === 0) {
+      if (viewerAppRef.current?.nowLoading === 0) {
         alert('좀 천천히하셈');
       }
     }
@@ -216,8 +216,8 @@ function WorksViewerTemplate() {
 
   const handleNext = useCallback(() => {
     preventTouch();
-    if (appRef.current && viewerData && selected < viewerData.length - 1) {
-      appRef.current?.next();
+    if (viewerAppRef.current && viewerData && selected < viewerData.length - 1) {
+      viewerAppRef.current?.next();
       setSelected((prev) => prev + 1);
       router.push(`${pathname}?${createQueryString('number', (selected + 1).toString())}`);
     }
@@ -225,8 +225,8 @@ function WorksViewerTemplate() {
 
   const handlePrev = useCallback(() => {
     preventTouch();
-    if (appRef.current && viewerData && selected > 0) {
-      appRef.current?.prev();
+    if (viewerAppRef.current && viewerData && selected > 0) {
+      viewerAppRef.current?.prev();
       setSelected((prev) => prev - 1);
       router.push(`${pathname}?${createQueryString('number', (selected - 1).toString())}`);
     }
@@ -234,7 +234,7 @@ function WorksViewerTemplate() {
 
   const handleThumbnailClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (appRef.current) {
+      if (viewerAppRef.current) {
         if (e.target instanceof HTMLDivElement) {
           const target = e.target;
           const num = target.dataset.num;
@@ -242,7 +242,7 @@ function WorksViewerTemplate() {
             if (Number.parseInt(num) === selected) return;
             preventTouch();
             setSelected(Number.parseInt(num));
-            appRef.current.selectedChange(Number.parseInt(num));
+            viewerAppRef.current.selectedChange(Number.parseInt(num));
             scrollToSelected(Number.parseInt(num));
             router.push(`${pathname}?${createQueryString('number', num)}`);
           }
@@ -285,7 +285,7 @@ function WorksViewerTemplate() {
   }, []);
 
   const handleClear = useCallback(() => {
-    appRef.current?.destroy();
+    viewerAppRef.current?.destroy();
   }, []);
 
   useEffect(() => {
@@ -322,27 +322,25 @@ function WorksViewerTemplate() {
         setSelected(Number.parseInt(number));
       }
       router.push(`${pathname}?${createQueryString('number', number ?? '0')}`);
-      appRef.current = new ViewerClass(
+      viewerAppRef.current = new ViewerClass(
         canvasRef.current,
         viewerData,
         Number.parseInt(number ?? '0'),
       );
     }
 
-    if (appRef.current) {
-      window.onresize = appRef.current.resize.bind(appRef.current);
-      appRef.current.resize();
+    if (viewerAppRef.current) {
+      window.onresize = viewerAppRef.current.resize.bind(viewerAppRef.current);
+      viewerAppRef.current.resize();
 
       const animate = () => {
-        appRef.current?.render(); // 실제 렌더링 함수
+        viewerAppRef.current?.render(); // 실제 렌더링 함수
         rafRef.current = requestAnimationFrame(animate);
       };
       animate();
       isFirstRender.current = false;
     }
-    // 린트 경고 무시: 검색 파라미터가 업데이트되더라도 첫 렌더링 이후에는 동작하지 않도록
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewerData, searchParams, createQueryString, pathname, router]);
+  }, [viewerData, searchParams, createQueryString, router, pathname]);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {

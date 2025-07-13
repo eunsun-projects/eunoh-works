@@ -1,7 +1,7 @@
 'use client';
 
 import styles from '@/app/(public)/works/viewer/viewer.module.css';
-import { ViewerData } from '@/types/viwer.type';
+import type { ViewerData } from '@/types/viwer.type';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
@@ -262,7 +262,7 @@ export default class ViewerClass {
       },
       (error) => {
         if (loadDiv) {
-          loadDiv.innerHTML = `error ocurred! restart page!`;
+          loadDiv.innerHTML = 'error ocurred! restart page!';
           loadDiv.style.fontSize = '1rem';
         }
         console.error(error);
@@ -274,7 +274,7 @@ export default class ViewerClass {
     const controls = new OrbitControls(this.camera, this.renderer.domElement);
     controls.target.set(0, -3, 0); // 모델의 위치로 설정
     controls.minDistance = 3.5; // 객체에 가까워질 수 있는 최소 거리
-    this.fixedWidth > 768 ? (controls.maxDistance = 9) : (controls.maxDistance = 29); // 객체에서 멀어질 수 있는 최대 거리
+    controls.maxDistance = this.fixedWidth > 768 ? 9 : 29; // 객체에서 멀어질 수 있는 최대 거리
     controls.autoRotate = false;
     controls.update();
     this.controls = controls;
@@ -290,17 +290,17 @@ export default class ViewerClass {
     this.pixelPass = renderPixelatedPass;
 
     const effect1 = new ShaderPass(DotScreenShader);
-    effect1.uniforms['scale'].value = 3;
+    effect1.uniforms.scale.value = 3;
     this.dotScreenPass = effect1;
 
     const genCubeUrls = (prefix: string, postfix: string) => {
       return [
-        prefix + 'px' + postfix,
-        prefix + 'nx' + postfix,
-        prefix + 'py' + postfix,
-        prefix + 'ny' + postfix,
-        prefix + 'pz' + postfix,
-        prefix + 'nz' + postfix,
+        `${prefix}px${postfix}`,
+        `${prefix}nx${postfix}`,
+        `${prefix}py${postfix}`,
+        `${prefix}ny${postfix}`,
+        `${prefix}pz${postfix}`,
+        `${prefix}nz${postfix}`,
       ];
     };
     const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
@@ -329,9 +329,9 @@ export default class ViewerClass {
   removeLightPlus() {
     this.removeLight();
     const rightIcon = document.querySelectorAll('.xyzright');
-    rightIcon.forEach((e) => {
+    for (const e of Array.from(rightIcon)) {
       if (e.classList.value.includes(styles.xyzon)) e.classList.remove(styles.xyzon);
-    });
+    }
   }
   lightModeChange(target: string) {
     switch (target) {
@@ -386,7 +386,7 @@ export default class ViewerClass {
       this.camera.right = aspect * 1;
     }
     if (this.controls) {
-      this.fixedWidth > 768 ? (this.controls.maxDistance = 9) : (this.controls.maxDistance = 29); // 객체에서 멀어질 수 있는 최대 거리
+      this.controls.maxDistance = this.fixedWidth > 768 ? 9 : 29; // 객체에서 멀어질 수 있는 최대 거리
     }
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
@@ -416,7 +416,9 @@ export default class ViewerClass {
       // Material 삭제
       if (object instanceof THREE.Mesh && object.material) {
         if (Array.isArray(object.material)) {
-          object.material.forEach((material: THREE.Material) => this.disposeMaterial(material));
+          for (const material of object.material) {
+            this.disposeMaterial(material);
+          }
           console.log('material array disposed!');
         } else {
           this.disposeMaterial(object.material);
@@ -451,15 +453,15 @@ export default class ViewerClass {
   }
   xyzonViewRemove() {
     const viewIcon = document.querySelectorAll('.xyzview');
-    viewIcon.forEach((e) => {
+    for (const e of Array.from(viewIcon)) {
       e.classList.remove(styles.xyzon);
-    });
+    }
   }
   xyzonEffectsRemove() {
     const effectsIcon = document.querySelectorAll('.xyzeffects');
-    effectsIcon.forEach((e) => {
+    for (const e of Array.from(effectsIcon)) {
       e.classList.remove(styles.xyzon);
-    });
+    }
   }
   toggleWireframe(target: HTMLElement | SVGElement) {
     if (target.classList.value.includes(styles.xyzon)) {

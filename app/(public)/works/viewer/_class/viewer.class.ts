@@ -13,6 +13,12 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { DotScreenShader } from 'three/addons/shaders/DotScreenShader.js';
 
+declare global {
+  interface Window {
+    gc?: () => void;
+  }
+}
+
 const colors = {
   sun: 0xfdfdf4,
   ired: 0xdcf6fe,
@@ -57,6 +63,13 @@ export default class ViewerClass {
   viewerData: ViewerData[];
   selected: number;
   resizeHandler: (() => void) | null;
+  animationId: number | null = null;
+  isIdle = false;
+  lastFrameTime = 0;
+  targetFPS = 30;
+  frameInterval = 1000 / 30;
+  idleTimer: NodeJS.Timeout | null = null;
+  resetIdleTimer!: () => void;
   constructor(canvasRef: HTMLDivElement, viewerData: ViewerData[], selected: number) {
     this.loadCounter = 0;
     this.nowLoading = 0;
@@ -85,12 +98,20 @@ export default class ViewerClass {
     this.fixedHeight = fixedHeight;
 
     /************* renderer ***************/
-    const renderer = new THREE.WebGLRenderer({ antialias: true }); //canvas : canvas,
-    renderer.setPixelRatio(window.devicePixelRatio);
+    const isMobile = this.isMobile();
+    const pixelRatio = isMobile ? Math.min(window.devicePixelRatio, 2) : window.devicePixelRatio;
+    const renderer = new THREE.WebGLRenderer({
+      antialias: !isMobile,
+      powerPreference: isMobile ? 'low-power' : 'high-performance',
+      alpha: false,
+      stencil: false,
+      depth: true,
+    });
+    renderer.setPixelRatio(pixelRatio);
     renderer.setSize(fixedWidth, fixedHeight);
     renderer.setClearColor(0xffffff, 1);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+    renderer.shadowMap.enabled = !isMobile;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     if (this.canvas?.firstChild) this.canvas.removeChild(this.canvas.firstChild); // 만약 캔버스에 이미 domElement 요소가 있다면 삭제
     this.canvas?.appendChild(renderer.domElement); // 캔버스에 렌더러 적용
@@ -193,6 +214,22 @@ export default class ViewerClass {
       this.resize();
     };
     window.addEventListener('resize', this.resizeHandler);
+
+    // 유휴 상태 감지를 위한 이벤트 리스너
+    this.resetIdleTimer = () => {
+      this.isIdle = false;
+      if (this.idleTimer) clearTimeout(this.idleTimer);
+      this.idleTimer = setTimeout(() => {
+        this.isIdle = true;
+      }, 5000); // 5초 후 유휴 상태
+    };
+
+    document.addEventListener('mousemove', this.resetIdleTimer);
+    document.addEventListener('touchstart', this.resetIdleTimer);
+    document.addEventListener('touchmove', this.resetIdleTimer);
+
+    // 초기 타이머 설정
+    this.resetIdleTimer();
   }
   isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -204,12 +241,19 @@ export default class ViewerClass {
   }
   setupLight() {
     this.pointLight.position.set(6, 20, 17);
-    this.pointLight.castShadow = true; // default false
-    this.pointLight.shadow.radius = 2; // 그림자 반경
-    this.pointLight.shadow.mapSize.width = 1024; // 2x 그림자 품질 조정
-    this.pointLight.shadow.mapSize.height = 1024; // 2x
-    this.pointLight.shadow.camera.near = 1; // default
-    this.pointLight.shadow.camera.far = 10000; // default
+    const isMobile = this.isMobile();
+
+    if (!isMobile) {
+      this.pointLight.castShadow = true;
+      this.pointLight.shadow.radius = 2;
+      this.pointLight.shadow.mapSize.width = 512;
+      this.pointLight.shadow.mapSize.height = 512;
+      this.pointLight.shadow.camera.near = 1;
+      this.pointLight.shadow.camera.far = 10000;
+    } else {
+      this.pointLight.castShadow = false;
+    }
+
     this.scene.add(this.hemiLight);
     this.scene.add(this.pointLight);
   }
@@ -230,12 +274,16 @@ export default class ViewerClass {
         gltf.scene.name = model.nick;
         this.scene.add(gltf.scene);
 
+        const isMobile = this.isMobile();
         gltf.scene.traverse((object) => {
           if (object instanceof THREE.Mesh) {
-            object.castShadow = true; // traverse 돌려서 mesh 인 애들 전부 castshadow
-            object.receiveShadow = true;
+            if (!isMobile) {
+              object.castShadow = true;
+              object.receiveShadow = true;
+            }
 
-            // wireframe helper
+            // wireframe helper - 모바일에서는 생성하지 않음
+
             const wireframeGeometry = new THREE.WireframeGeometry(object.geometry);
             const wireframeMaterial = new THREE.LineBasicMaterial({
               color: 0xff0000,
@@ -243,12 +291,12 @@ export default class ViewerClass {
             const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
             wireframe.visible = false;
             object.add(wireframe);
+            this.wireframe = wireframe;
 
-            this.originalMaterial = object.material; //  머티리얼 복사
-            this.imageMap = object.material.map; // 이미지 맵 복사
-            this.baseMesh = object; // 메쉬 복사
-            this.wireframe = wireframe; // 와이어프레임 복사
-            this.objGroup = gltf.scene; // 그룹 참조 저장 회전 등을 위해
+            this.originalMaterial = object.material;
+            this.imageMap = object.material.map;
+            this.baseMesh = object;
+            this.objGroup = gltf.scene;
           }
         });
       },
@@ -261,6 +309,8 @@ export default class ViewerClass {
             overlay.style.display = 'none';
             loadDiv.style.display = 'none';
             gui.style.opacity = '1';
+            // gui.style.pointerEvents = 'auto';
+            // gui.style.touchAction = 'auto';
             guiSwipe3d.style.pointerEvents = 'auto';
             guiSwipe3d.style.touchAction = 'auto';
           } else {
@@ -313,7 +363,6 @@ export default class ViewerClass {
     effect1.uniforms.scale.value = 4;
     this.dotScreenPass = effect1;
 
-    // CubeTexture 캐시 - 이미 로드된 경우 재사용
     if (!this.cubeMap) {
       const genCubeUrls = (prefix: string, postfix: string) => {
         return [
@@ -335,8 +384,7 @@ export default class ViewerClass {
           this.cubeMap = ldrCubeMap;
         },
       );
-    } else {
-      // 이미 로드된 cubeMap이 있는 경우 재사용
+    } else if (this.cubeMap) {
       const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
       this.physicalMaterial.envMap = pmremGenerator.fromCubemap(this.cubeMap).texture;
       pmremGenerator.dispose();
@@ -421,6 +469,10 @@ export default class ViewerClass {
     if (nextData >= this.viewerData.length) return;
     this.selected = nextData;
     this.modelDispose();
+    // 강제 가비지 컬렉션 (브라우저가 지원하는 경우)
+    if (window.gc) {
+      window.gc();
+    }
     this.setupModel(this.viewerData[nextData]);
   }
   prev() {
@@ -428,11 +480,19 @@ export default class ViewerClass {
     if (prevData < 0) return;
     this.selected = prevData;
     this.modelDispose();
+    // 강제 가비지 컬렉션 (브라우저가 지원하는 경우)
+    if (window.gc) {
+      window.gc();
+    }
     this.setupModel(this.viewerData[prevData]);
   }
   selectedChange(num: number) {
     this.selected = num;
     this.modelDispose();
+    // 강제 가비지 컬렉션 (브라우저가 지원하는 경우)
+    if (window.gc) {
+      window.gc();
+    }
     this.setupModel(this.viewerData[num]);
   }
   resize() {
@@ -456,12 +516,42 @@ export default class ViewerClass {
     this.composer?.setSize(width, height);
   }
   render() {
-    if (!this.running) return;
-    if (this.rotateObject && this.objGroup) this.objGroup.rotation.y += -0.001;
-    this.composer?.render();
+    if (!this.running || !this.renderer || !this.scene || !this.camera || !this.composer) return;
+
+    const now = performance.now();
+    const delta = now - this.lastFrameTime;
+
+    // FPS 제한 (모바일에서 배터리 절약)
+    if (delta < this.frameInterval) return;
+
+    this.lastFrameTime = now;
+
+    // 유휴 상태 감지 (사용자 상호작용이 없을 때 렌더링 빈도 줄이기)
+    if (this.isIdle && !this.rotateObject) {
+      // 유휴 상태에서는 1FPS로 제한
+      if (delta < 1000) return;
+    }
+
+    if (this.rotateObject && this.objGroup) {
+      this.objGroup.rotation.y += -0.001;
+    }
+
+    this.composer.render();
   }
   destroy() {
     this.running = false;
+
+    // 애니메이션 프레임 정리
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+
+    // 유휴 타이머 정리
+    if (this.idleTimer) {
+      clearTimeout(this.idleTimer);
+    }
+
     this.disposeEffects();
 
     // Controls 정리
@@ -475,6 +565,11 @@ export default class ViewerClass {
       window.removeEventListener('resize', this.resizeHandler);
       this.resizeHandler = null;
     }
+
+    // 모든 유휴 이벤트 리스너 정리
+    document.removeEventListener('mousemove', this.resetIdleTimer);
+    document.removeEventListener('touchstart', this.resetIdleTimer);
+    document.removeEventListener('touchmove', this.resetIdleTimer);
 
     this.renderer.dispose();
     this.modelDispose();

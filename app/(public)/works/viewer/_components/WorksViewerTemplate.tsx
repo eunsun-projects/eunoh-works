@@ -285,7 +285,12 @@ function WorksViewerTemplate() {
   }, []);
 
   const handleClear = useCallback(() => {
-    viewerAppRef.current?.destroy();
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+    }
+    if (viewerAppRef.current) {
+      viewerAppRef.current.destroy();
+    }
   }, []);
 
   useEffect(() => {
@@ -308,9 +313,6 @@ function WorksViewerTemplate() {
       if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
       }
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
     };
   }, []);
 
@@ -326,12 +328,13 @@ function WorksViewerTemplate() {
         viewerData,
         Number.parseInt(number ?? '0'),
       );
-    }
 
-    if (viewerAppRef.current) {
+      // 애니메이션 루프 시작
       const animate = () => {
-        viewerAppRef.current?.render(); // 실제 렌더링 함수
-        rafRef.current = requestAnimationFrame(animate);
+        if (viewerAppRef.current) {
+          viewerAppRef.current.render();
+          rafRef.current = requestAnimationFrame(animate);
+        }
       };
       animate();
       isFirstRender.current = false;

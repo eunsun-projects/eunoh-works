@@ -1,14 +1,15 @@
-import { ViewerData } from "@/types/viwer.type";
-import fetchWrapper from "@/utils/common/fetchWrapper";
+import type { ViewerData } from '@/types/viwer.type';
+import fetchWrapper from '@/utils/common/fetchWrapper';
 
 export async function getViewer() {
-  const url = "/api/viewer";
+  const url = '/api/viewer';
   try {
     const response = await fetchWrapper<ViewerData[]>(url, {
-      method: "GET",
+      method: 'GET',
     });
     return response;
   } catch (error) {
-    throw error;
+    console.error(error);
+    return [];
   }
 }

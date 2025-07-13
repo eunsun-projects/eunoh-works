@@ -311,7 +311,6 @@ function WorksViewerTemplate() {
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
       }
-      window.onresize = null;
     };
   }, []);
 
@@ -330,9 +329,6 @@ function WorksViewerTemplate() {
     }
 
     if (viewerAppRef.current) {
-      window.onresize = viewerAppRef.current.resize.bind(viewerAppRef.current);
-      viewerAppRef.current.resize();
-
       const animate = () => {
         viewerAppRef.current?.render(); // 실제 렌더링 함수
         rafRef.current = requestAnimationFrame(animate);

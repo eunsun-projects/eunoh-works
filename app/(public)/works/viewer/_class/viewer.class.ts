@@ -56,6 +56,7 @@ export default class ViewerClass {
   canvas: HTMLDivElement | null;
   viewerData: ViewerData[];
   selected: number;
+  resizeHandler: (() => void) | null;
   constructor(canvasRef: HTMLDivElement, viewerData: ViewerData[], selected: number) {
     this.loadCounter = 0;
     this.nowLoading = 0;
@@ -77,6 +78,7 @@ export default class ViewerClass {
     this.viewerData = viewerData;
     this.canvas = canvasRef;
     this.selected = selected;
+    this.resizeHandler = null;
     const fixedWidth = window.innerWidth;
     const fixedHeight = window.innerHeight;
     this.fixedWidth = fixedWidth;
@@ -182,6 +184,15 @@ export default class ViewerClass {
     this.setupLight();
     this.setupControls();
     this.setupEffects();
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    // Resize 이벤트 리스너 설정
+    this.resizeHandler = () => {
+      this.resize();
+    };
+    window.addEventListener('resize', this.resizeHandler);
   }
   isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -270,6 +281,12 @@ export default class ViewerClass {
     );
   }
   setupControls() {
+    // 기존 controls 정리
+    if (this.controls) {
+      this.controls.dispose();
+      this.controls = null;
+    }
+
     /************* controls ***************/
     const controls = new OrbitControls(this.camera, this.renderer.domElement);
     controls.target.set(0, -3, 0); // 모델의 위치로 설정
@@ -280,6 +297,9 @@ export default class ViewerClass {
     this.controls = controls;
   }
   setupEffects() {
+    // 기존 effects 정리
+    this.disposeEffects();
+
     /************* composer **************/
     const composer = new EffectComposer(this.renderer);
 
@@ -290,33 +310,76 @@ export default class ViewerClass {
     this.pixelPass = renderPixelatedPass;
 
     const effect1 = new ShaderPass(DotScreenShader);
-    effect1.uniforms.scale.value = 3;
+    effect1.uniforms.scale.value = 4;
     this.dotScreenPass = effect1;
 
-    const genCubeUrls = (prefix: string, postfix: string) => {
-      return [
-        `${prefix}px${postfix}`,
-        `${prefix}nx${postfix}`,
-        `${prefix}py${postfix}`,
-        `${prefix}ny${postfix}`,
-        `${prefix}pz${postfix}`,
-        `${prefix}nz${postfix}`,
-      ];
-    };
-    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
-    const ldrUrls = genCubeUrls('/assets/whitecube2/', '.png');
-    const envTexture = new THREE.CubeTextureLoader().load(
-      ldrUrls,
-      (ldrCubeMap: THREE.CubeTexture) => {
-        this.physicalMaterial.envMap = pmremGenerator.fromCubemap(envTexture).texture;
-        pmremGenerator.dispose();
-        this.cubeMap = ldrCubeMap;
-      },
-    );
+    // CubeTexture 캐시 - 이미 로드된 경우 재사용
+    if (!this.cubeMap) {
+      const genCubeUrls = (prefix: string, postfix: string) => {
+        return [
+          `${prefix}px${postfix}`,
+          `${prefix}nx${postfix}`,
+          `${prefix}py${postfix}`,
+          `${prefix}ny${postfix}`,
+          `${prefix}pz${postfix}`,
+          `${prefix}nz${postfix}`,
+        ];
+      };
+      const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+      const ldrUrls = genCubeUrls('/assets/whitecube2/', '.png');
+      const envTexture = new THREE.CubeTextureLoader().load(
+        ldrUrls,
+        (ldrCubeMap: THREE.CubeTexture) => {
+          this.physicalMaterial.envMap = pmremGenerator.fromCubemap(envTexture).texture;
+          pmremGenerator.dispose();
+          this.cubeMap = ldrCubeMap;
+        },
+      );
+    } else {
+      // 이미 로드된 cubeMap이 있는 경우 재사용
+      const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+      this.physicalMaterial.envMap = pmremGenerator.fromCubemap(this.cubeMap).texture;
+      pmremGenerator.dispose();
+    }
+
     const renderPass = new RenderPass(this.scene, this.camera);
     renderPass.clear = false;
     composer.addPass(renderPass);
     this.composer = composer;
+  }
+
+  disposeEffects() {
+    // Composer와 passes 정리
+    if (this.composer) {
+      this.composer.dispose();
+      this.composer = null;
+    }
+
+    if (this.glitchPass) {
+      this.glitchPass.dispose?.();
+      this.glitchPass = null;
+    }
+
+    if (this.pixelPass) {
+      this.pixelPass.dispose?.();
+      this.pixelPass = null;
+    }
+
+    if (this.dotScreenPass) {
+      this.dotScreenPass.dispose?.();
+      this.dotScreenPass = null;
+    }
+
+    if (this.renderPass) {
+      this.renderPass.dispose?.();
+      this.renderPass = null;
+    }
+
+    // CubeMap 정리 (destroy 시에만 정리)
+    if (this.cubeMap) {
+      this.cubeMap.dispose();
+      this.cubeMap = null;
+    }
   }
   removeLight() {
     if (this.sunLight || this.iredLight || this.bulbLight || this.pinLight) {
@@ -399,6 +462,20 @@ export default class ViewerClass {
   }
   destroy() {
     this.running = false;
+    this.disposeEffects();
+
+    // Controls 정리
+    if (this.controls) {
+      this.controls.dispose();
+      this.controls = null;
+    }
+
+    // Event Listeners 정리
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+      this.resizeHandler = null;
+    }
+
     this.renderer.dispose();
     this.modelDispose();
   }
@@ -413,6 +490,13 @@ export default class ViewerClass {
         object.geometry.dispose();
         console.log('geo disposed!');
       }
+
+      // Wireframe geometry 정리
+      if (object instanceof THREE.LineSegments && object.geometry) {
+        object.geometry.dispose();
+        console.log('wireframe geo disposed!');
+      }
+
       // Material 삭제
       if (object instanceof THREE.Mesh && object.material) {
         if (Array.isArray(object.material)) {
@@ -425,20 +509,56 @@ export default class ViewerClass {
           console.log('material disposed!');
         }
       }
+
+      // Wireframe material 정리
+      if (object instanceof THREE.LineSegments && object.material) {
+        if (Array.isArray(object.material)) {
+          for (const material of object.material) {
+            this.disposeMaterial(material);
+          }
+          console.log('wireframe material array disposed!');
+        } else {
+          this.disposeMaterial(object.material);
+          console.log('wireframe material disposed!');
+        }
+      }
     });
   }
   disposeMaterial(material: THREE.Material) {
-    // 텍스처 삭제
-    if (material instanceof THREE.MeshBasicMaterial && material.map) material.map.dispose();
-    if (material instanceof THREE.MeshPhongMaterial && material.lightMap)
-      material.lightMap.dispose();
-    if (material instanceof THREE.MeshPhongMaterial && material.bumpMap) material.bumpMap.dispose();
-    if (material instanceof THREE.MeshPhongMaterial && material.normalMap)
-      material.normalMap.dispose();
-    if (material instanceof THREE.MeshPhongMaterial && material.specularMap)
-      material.specularMap.dispose();
-    if (material instanceof THREE.MeshPhysicalMaterial && material.envMap)
-      material.envMap.dispose();
+    // 모든 텍스처 타입 정리
+    const textureProperties = [
+      'map',
+      'lightMap',
+      'bumpMap',
+      'normalMap',
+      'specularMap',
+      'envMap',
+      'aoMap',
+      'emissiveMap',
+      'metalnessMap',
+      'roughnessMap',
+      'displacementMap',
+      'alphaMap',
+      'clearcoatMap',
+      'clearcoatNormalMap',
+      'clearcoatRoughnessMap',
+      'iridescenceMap',
+      'iridescenceThicknessMap',
+      'sheenColorMap',
+      'sheenRoughnessMap',
+      'specularIntensityMap',
+      'specularColorMap',
+      'thicknessMap',
+      'transmissionMap',
+    ];
+
+    for (const prop of textureProperties) {
+      const texture = (material as unknown as Record<string, unknown>)[prop];
+      if (texture && typeof texture === 'object' && 'dispose' in texture) {
+        (texture as THREE.Texture).dispose();
+      }
+    }
+
     // Material 자체 삭제
     material.dispose();
   }

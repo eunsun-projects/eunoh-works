@@ -218,6 +218,16 @@ export default class SonnyClass {
     this.loader.load(
       model.obj,
       (gltf) => {
+        // 로딩 완료 시 100%로 설정
+        this.loadCounter = 100;
+        this.nowLoading = 1;
+
+        if (this.overlay && this.loadDiv) {
+          this.loadDiv.remove();
+          this.overlay.style.opacity = '0';
+          this.overlay.style.display = 'none';
+        }
+
         const box = new THREE.Box3().setFromObject(gltf.scene);
         const size = box.getSize(new THREE.Vector3());
         const scaleFactor = 8 / Math.max(size.x, size.y, size.z);
@@ -255,13 +265,20 @@ export default class SonnyClass {
         });
       },
       (xhr) => {
-        this.loadCounter = (xhr.loaded / xhr.total) * 100;
+        // xhr.total이 0이거나 undefined일 때 infinity 방지
+        if (xhr.total && xhr.total > 0) {
+          this.loadCounter = (xhr.loaded / xhr.total) * 100;
+        } else {
+          // total이 없을 때는 loaded 바이트 수로 대략적인 진행률 계산
+          this.loadCounter = Math.min((xhr.loaded / 1000000) * 50, 99); // 1MB당 50%로 계산, 최대 99%
+        }
+
         if (this.overlay && this.loadDiv) {
           this.loadDiv.innerHTML = `Loading.. ${Math.round(this.loadCounter)}%`;
           this.overlay.style.transition = `opacity ${this.loadCounter / 100}s ease-out ${
             this.loadCounter / 100
           }s`;
-          if (this.loadCounter === 100) {
+          if (this.loadCounter >= 100) {
             this.nowLoading = 1;
             this.loadDiv.remove();
             this.overlay.style.opacity = '0';

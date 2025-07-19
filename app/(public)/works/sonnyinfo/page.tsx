@@ -6,7 +6,6 @@ import { alumni, rubicmono, silkscreen } from '@/app/fonts';
 import OverScrollBehavior from '@/components/common/OverScrollBehavior';
 import type { SonnyInfo } from '@/types/sonny.type';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
 import SonnyGoals from './_components/SonnyGoals';
 const Timer = dynamic(() => import('@/app/(public)/works/sonnyinfo/_components/Timer'), {
@@ -127,11 +126,10 @@ export default async function SonnyPage() {
           </div>
 
           <div className={styles.sonnygif}>
-            <Image
+            <img
               className={styles.sonnygifimg}
               src="/assets/sonnyinfo/sonny_low.gif"
               alt="sonnygif"
-              unoptimized={true}
             />
           </div>
 

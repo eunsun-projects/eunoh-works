@@ -1,7 +1,7 @@
 import MainPage from "./_components/MainPage";
 
 function PublicPage() {
-    return <MainPage />;
+	return <MainPage />;
 }
 
 export default PublicPage;

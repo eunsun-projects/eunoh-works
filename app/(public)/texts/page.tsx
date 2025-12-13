@@ -1,18 +1,20 @@
+import { Suspense } from "react";
 import { basicMeta } from "@/app/basicMeta";
 import Loading from "@/app/loading";
-import { TextType } from "@/types/texts.type";
-import { Suspense } from "react";
+import type { TextType } from "@/types/texts.type";
 import TextOuter from "./_components/TextOuter";
 import { getData } from "./_lib/getData";
 
 export const metadata = basicMeta;
 
-export default function TextsMainPage() {
-    const posts: TextType[] = getData();
+export const dynamic = "force-static";
 
-    return (
-        <Suspense fallback={<Loading />}>
-            <TextOuter posts={posts} />
-        </Suspense>
-    );
+export default function TextsMainPage() {
+	const posts: TextType[] = getData();
+
+	return (
+		<Suspense fallback={<Loading />}>
+			<TextOuter posts={posts} />
+		</Suspense>
+	);
 }

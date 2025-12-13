@@ -1,14 +1,9 @@
 import { basicMeta } from "@/app/basicMeta";
-import Loading from "@/app/loading";
-import { Suspense } from "react";
 import About from "./_components/About";
 
 export const metadata = basicMeta;
+export const dynamic = "force-static";
 
 export default function AboutPage() {
-    return (
-        <Suspense fallback={<Loading />}>
-            <About />
-        </Suspense>
-    );
+	return <About />;
 }

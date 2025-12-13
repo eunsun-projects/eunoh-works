@@ -1,32 +1,37 @@
+import { Suspense } from "react";
 import { basicMeta } from "@/app/basicMeta";
 import Loading from "@/app/loading";
 import { sliceArrayByLimit } from "@/utils/texts/sliceArrayByLimit";
-import { Suspense } from "react";
-import TextContents from "./_components/TextContents";
 import { getData } from "../_lib/getData";
+import TextContents from "./_components/TextContents";
 
 export const metadata = basicMeta;
+export const dynamic = "force-static";
 
 const totalPageArray = (length: number, limit: number) => {
-    const slicedPageArray = sliceArrayByLimit(length, limit);
+	const slicedPageArray = sliceArrayByLimit(length, limit);
 
-    return slicedPageArray;
+	return slicedPageArray;
 };
 
-export default function TextsSlugPage({ params }: { params: { slug: string } }) {
-    const { slug } = params;
+export default function TextsSlugPage({
+	params,
+}: {
+	params: { slug: string };
+}) {
+	const { slug } = params;
 
-    const posts = getData();
+	const posts = getData();
 
-    const pageArr = totalPageArray(posts.length, 5);
+	const pageArr = totalPageArray(posts.length, 5);
 
-    const find = posts.find((e) => e.page === slug);
+	const find = posts.find((e) => e.page === slug);
 
-    if (slug.length > 0 && find) {
-        return (
-            <Suspense fallback={<Loading />}>
-                <TextContents post={find} pageArr={pageArr} />
-            </Suspense>
-        );
-    }
+	if (slug.length > 0 && find) {
+		return (
+			<Suspense fallback={<Loading />}>
+				<TextContents post={find} pageArr={pageArr} />
+			</Suspense>
+		);
+	}
 }

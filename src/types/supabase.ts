@@ -568,6 +568,51 @@ export type Database = {
         }
         Relationships: []
       }
+      viewer: {
+        Row: {
+          author: string | null
+          created_at: string | null
+          id: string
+          img: string | null
+          material: string | null
+          nick: string | null
+          number: number | null
+          objurl: string | null
+          size: string | null
+          thumb: string | null
+          title: string | null
+          year: number | null
+        }
+        Insert: {
+          author?: string | null
+          created_at?: string | null
+          id?: string
+          img?: string | null
+          material?: string | null
+          nick?: string | null
+          number?: number | null
+          objurl?: string | null
+          size?: string | null
+          thumb?: string | null
+          title?: string | null
+          year?: number | null
+        }
+        Update: {
+          author?: string | null
+          created_at?: string | null
+          id?: string
+          img?: string | null
+          material?: string | null
+          nick?: string | null
+          number?: number | null
+          objurl?: string | null
+          size?: string | null
+          thumb?: string | null
+          title?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       blog_likes: {

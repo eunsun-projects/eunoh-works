@@ -8,6 +8,7 @@ import { basicMeta } from "@/app/basicMeta";
 import { alumni, rubicmono, silkscreen } from "@/app/fonts";
 import OverScrollBehavior from "@/components/common/OverScrollBehavior";
 import type { SonnyInfo } from "@/types/sonny.type";
+import { createClient } from "@/utils/supabase/server";
 import SonnyGoals from "./_components/SonnyGoals";
 
 const Timer = dynamic(
@@ -21,25 +22,47 @@ export const metadata = basicMeta;
 
 async function getData(): Promise<SonnyInfo | null> {
 	try {
-		const response = await fetch(
-			"https://raw.githubusercontent.com/eunohhh/get_sonny_goals/main/goals/goals.json",
-			{
-				method: "GET",
-				next: { revalidate: 3600 }, // 1시간마다 재검증
-			},
-		);
+		const supabase = createClient();
 
-		if (response.ok) {
-			const result: SonnyInfo = await response.json();
-			return result;
+		// create_at 최신만 가져오기
+		const { data: goals, error } = await supabase
+			.from("goals")
+			.select("*")
+			.eq("name", "Son Heung-min")
+			.order("created_at", { ascending: false })
+			.limit(1) // 1개만 가져오기
+			.single();
+
+		if (error) {
+			throw new Error(error.message);
 		}
 
-		// fallback 데이터 반환
-		return {
-			player: "Son Heung-min",
-			goals: "100",
-			timestamp: new Date().toISOString(),
+		const result: SonnyInfo = {
+			player: goals.name,
+			goals: goals.goals,
+			timestamp: goals.create_at,
 		};
+		return result;
+
+		// const response = await fetch(
+		// 	"https://raw.githubusercontent.com/eunohhh/get_sonny_goals/main/goals/goals.json",
+		// 	{
+		// 		method: "GET",
+		// 		next: { revalidate: 3600 }, // 1시간마다 재검증
+		// 	},
+		// );
+
+		// if (response.ok) {
+		// 	const result: SonnyInfo = await response.json();
+		// 	return result;
+		// }
+
+		// // fallback 데이터 반환
+		// return {
+		// 	player: "Son Heung-min",
+		// 	goals: "100",
+		// 	timestamp: new Date().toISOString(),
+		// };
 	} catch (error) {
 		// 빌드 타임이나 네트워크 에러 시 fallback 데이터 반환
 		// 에러는 개발 환경에서만 로그 출력

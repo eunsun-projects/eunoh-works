@@ -33,9 +33,8 @@ export type Plaiceholder = {
         backgroundRepeat: string;
     };
     base64: string;
-    pixels: {}[][];
+    pixels: unknown[][];
 };
-[];
 
 export type BlurredImage = {
     width: number;

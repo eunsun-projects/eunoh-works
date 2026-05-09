@@ -1,22 +1,22 @@
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import Script from "next/script";
 import Footer from "@/components/ui/footer/Footer";
 import Header from "@/components/ui/header/Header";
 import QueryProvider from "@/providers/QueryProvider";
 import { basicMeta } from "./basicMeta";
 import { rubic } from "./fonts";
 import "./globals.css";
-import Script from "next/script";
 
 export const metadata: Metadata = basicMeta;
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const headersList = headers();
+	const headersList = await headers();
 	const header_url = headersList.get("x-url") || undefined;
 	let lastSegment: string | undefined;
 

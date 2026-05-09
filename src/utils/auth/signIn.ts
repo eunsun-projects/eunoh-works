@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 const signIn = async (formData: FormData) => {
     "use server";
-    const supabase = createClient();
+    const supabase = await createClient();
 
     if (!process.env.NEXT_PUBLIC_BASE_URL) {
         throw new Error("NEXT_PUBLIC_BASE_URL is not set");

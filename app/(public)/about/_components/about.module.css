@@ -7,11 +7,17 @@
     margin: 0;
     font-size: 2.2vh;
 }
-.selector h2 span {
+.selector h2 button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: inherit;
     cursor: pointer;
     transition: 0.5s ease-in;
 }
-.selector h2 span:hover {
+.selector h2 button:hover,
+.selector h2 button:focus {
     cursor: pointer;
     color: rgb(255, 100, 100);
 }

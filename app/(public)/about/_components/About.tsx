@@ -1,65 +1,49 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import type { MouseEvent } from "react";
 import styles from "@/app/(public)/about/_components/about.module.css";
 import En from "./En";
 import Ko from "./Ko";
 
 export default function About() {
-	const [currLang, setCurrLang] = useState("ko");
-
 	const router = useRouter();
 	const pathname = usePathname();
-	const searchparams = useSearchParams();
+	const searchParams = useSearchParams();
 
-	const lang = searchparams.get("lang");
+	const lang = searchParams.get("lang");
+	const currentLang = lang === "en" ? "en" : "ko";
 
-	const createQueryString = useCallback(
-		(name: string, value: string) => {
-			const params = new URLSearchParams(searchparams);
-			params.set(name, value);
+	const createQueryString = (name: string, value: string) => {
+		const params = new URLSearchParams(searchParams.toString());
+		params.set(name, value);
 
-			return params.toString();
-		},
-		[searchparams],
-	);
-
-	const handleClick = (e: React.MouseEvent<HTMLSpanElement>) => {
-		if (e.currentTarget.dataset.lang === "ko") {
-			setCurrLang("ko");
-		} else if (e.currentTarget.dataset.lang === "en") {
-			setCurrLang("en");
-		}
+		return params.toString();
 	};
 
-	useEffect(() => {
-		router.push(`${pathname}?${createQueryString("lang", "ko")}`);
-	}, [createQueryString, router, pathname]);
+	const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
+		const selectedLang = e.currentTarget.dataset.lang;
 
-	useEffect(() => {
-		if (currLang === "ko") {
-			router.push(`${pathname}?${createQueryString("lang", "ko")}`);
-		} else if (currLang === "en") {
-			router.push(`${pathname}?${createQueryString("lang", "en")}`);
+		if (selectedLang === "ko" || selectedLang === "en") {
+			router.push(`${pathname}?${createQueryString("lang", selectedLang)}`);
 		}
-	}, [currLang, createQueryString, router, pathname]);
+	};
 
 	return (
 		<div className="flex-1">
 			<div className={styles.selector}>
 				<h2>
-					<span data-lang="en" onClick={handleClick}>
+					<button type="button" data-lang="en" onClick={handleClick}>
 						EN
-					</span>
+					</button>
 					<span>/</span>
-					<span data-lang="ko" onClick={handleClick}>
+					<button type="button" data-lang="ko" onClick={handleClick}>
 						KO
-					</span>
+					</button>
 				</h2>
 			</div>
 
-			{lang === "ko" ? <Ko /> : <En />}
+			{currentLang === "ko" ? <Ko /> : <En />}
 		</div>
 	);
 }

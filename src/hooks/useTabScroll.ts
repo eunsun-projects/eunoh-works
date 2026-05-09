@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 type UseTapScrollProps = {
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
 };
 
 export function useTapScroll({ ref }: UseTapScrollProps) {
@@ -34,7 +34,7 @@ export function useTapScroll({ ref }: UseTapScrollProps) {
 
   // Handlers for arrow buttons on desktop, with specific ref
   const createScrollHandler = useCallback(
-    (ref: React.RefObject<HTMLElement>, direction: 'left' | 'right') => {
+    (ref: React.RefObject<HTMLElement | null>, direction: 'left' | 'right') => {
       if (!isDesktop) return () => {};
 
       return () => {

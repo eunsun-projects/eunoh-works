@@ -1,7 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-// import SonnyInfo from "./_components/sonnyInfo";
-
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import styles from "@/app/(public)/works/sonnyinfo/sonnyinfo.module.css";
 import { basicMeta } from "@/app/basicMeta";
@@ -10,19 +7,13 @@ import OverScrollBehavior from "@/components/common/OverScrollBehavior";
 import type { SonnyInfo } from "@/types/sonny.type";
 import { createClient } from "@/utils/supabase/server";
 import SonnyGoals from "./_components/SonnyGoals";
-
-const Timer = dynamic(
-	() => import("@/app/(public)/works/sonnyinfo/_components/Timer"),
-	{
-		ssr: false,
-	},
-);
+import TimerClient from "./_components/TimerClient";
 
 export const metadata = basicMeta;
 
 async function getData(): Promise<SonnyInfo | null> {
 	try {
-		const supabase = createClient();
+		const supabase = await createClient();
 
 		// create_at 최신만 가져오기
 		const { data: goals, error } = await supabase
@@ -107,7 +98,7 @@ export default async function SonnyPage() {
 							</Link>
 							<div className={`${styles.bannercon} ${alumni.className}`}>
 								<div className={`${styles.sonnytime} ${rubicmono.className}`}>
-									<Timer />
+									<TimerClient />
 								</div>
 								<p>HAPPY</p>
 								<div className={styles.bannercontwo}>

@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 async function getViewerData(): Promise<ViewerData[]> {
 	try {
-		const supabase = createClient();
+		const supabase = await createClient();
 		const { data, error } = await supabase
 			.from("viewer")
 			.select("*")

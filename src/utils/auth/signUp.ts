@@ -6,8 +6,8 @@ import { emailRegex } from "../common/commonRegexs";
 
 const signUp = async (formData: FormData) => {
     "use server";
-    const origin = headers().get("origin");
-    const supabase = createClient();
+    const origin = (await headers()).get("origin");
+    const supabase = await createClient();
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const passwordCheck = formData.get("password-check") as string;

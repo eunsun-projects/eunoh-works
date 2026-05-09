@@ -14,12 +14,12 @@ const totalPageArray = (length: number, limit: number) => {
 	return slicedPageArray;
 };
 
-export default function TextsSlugPage({
+export default async function TextsSlugPage({
 	params,
 }: {
-	params: { slug: string };
+	params: Promise<{ slug: string }>;
 }) {
-	const { slug } = params;
+	const { slug } = await params;
 
 	const posts = getData();
 

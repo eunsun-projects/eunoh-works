@@ -6,7 +6,7 @@ import LogOutButton from "../../auth/buttons/LogOutButton";
 import HeaderMenuList from "./HeaderMenuList";
 
 export default async function Header({ slug }: { slug: string | undefined }) {
-	const supabase = createClient();
+	const supabase = await createClient();
 
 	const {
 		data: { user },
